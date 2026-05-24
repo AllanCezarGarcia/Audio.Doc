@@ -17,7 +17,12 @@ app = Flask(__name__, static_folder='.')
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max upload
 
 PASTA_TEMP = tempfile.gettempdir()
-PASTA_UPLOADS = os.path.join(os.getcwd(), 'uploads')
+# Em produção (Render), usa /tmp porque o disco é efêmero mesmo.
+# Em dev local, usa ./uploads.
+if os.getenv('RENDER'):
+    PASTA_UPLOADS = '/tmp/uploads'
+else:
+    PASTA_UPLOADS = os.path.join(os.getcwd(), 'uploads')
 os.makedirs(PASTA_UPLOADS, exist_ok=True)
 
 # Dicionário global para rastrear progresso de conversões
@@ -37,7 +42,7 @@ def callback_progresso(id_conversao, etapa, progresso, mensagem=""):
     with conversoes_lock:
         if id_conversao not in conversoes_em_progresso:
             conversoes_em_progresso[id_conversao] = {}
-        
+
         conversoes_em_progresso[id_conversao] = {
             'etapa': etapa,
             'progresso': progresso,
@@ -53,28 +58,28 @@ def processar_conversao(id_conversao, caminho_entrada, caminho_saida, voz, nome_
         callback_progresso(id_conversao, 'Extraindo conteúdo', 5, 'Lendo arquivo...')
         blocos = extrair_conteudo(caminho_entrada)
         print(f"✓ {len(blocos)} blocos extraídos")
-        
+
         # Etapa 2: Gerar áudio
         callback_progresso(id_conversao, 'Gerando áudio', 15, f'Processando {len(blocos)} blocos...')
         gerar_audio_de_blocos(
-            blocos, 
-            caminho_saida=caminho_saida, 
+            blocos,
+            caminho_saida=caminho_saida,
             voz=voz,
             callback=lambda p, m: callback_progresso(id_conversao, 'Gerando áudio', 15 + (p * 0.8), m)
         )
-        
+
         # Etapa 3: Finalizado
         callback_progresso(id_conversao, 'Concluído', 100, f'Áudio salvo: {nome_saida}')
-        
+
         # Limpa arquivo de entrada
         if os.path.exists(caminho_entrada):
             os.remove(caminho_entrada)
-        
+
         with conversoes_lock:
             conversoes_em_progresso[id_conversao]['status'] = 'concluido'
-        
+
         print(f"✅ Conversão {id_conversao} concluída")
-    
+
     except Exception as e:
         print(f"❌ Erro na conversão {id_conversao}: {e}")
         with conversoes_lock:
@@ -88,6 +93,12 @@ def processar_conversao(id_conversao, caminho_entrada, caminho_saida, voz, nome_
 def index():
     """Serve a página HTML principal."""
     return send_file('index.html', mimetype='text/html')
+
+
+@app.route('/healthz')
+def healthz():
+    """Health check endpoint pro Render."""
+    return jsonify({'status': 'ok'})
 
 
 @app.route('/api/info', methods=['GET'])
@@ -116,11 +127,11 @@ def progresso(id_conversao):
         while True:
             with conversoes_lock:
                 info = conversoes_em_progresso.get(id_conversao)
-            
+
             if not info:
                 yield f"data: {json.dumps({'status': 'nao_encontrado'})}\n\n"
                 break
-            
+
             # Só envia se houver mudança de progresso
             if info.get('progresso', -1) != ultimo_progresso:
                 ultimo_progresso = info.get('progresso', -1)
@@ -131,23 +142,30 @@ def progresso(id_conversao):
                     'status': info.get('status', 'processando')
                 }
                 yield f"data: {json.dumps(evento)}\n\n"
-            
+
             # Se terminou, sai do loop
             if info.get('status') in ['concluido', 'erro']:
                 break
-            
+
             # Aguarda um pouco antes de verificar novamente
             import time
             time.sleep(0.5)
-    
-    return Response(gerar_eventos(), mimetype='text/event-stream')
+
+    return Response(
+        gerar_eventos(),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',  # evita buffer em proxies
+        }
+    )
 
 
 @app.route('/api/converter', methods=['POST'])
 def converter():
     """
     Endpoint para converter documento em áudio com feedback de progresso.
-    
+
     Params:
         - file: arquivo (PDF, DOCX, PPTX ou TXT)
         - voz: escolha de voz (francisca, antonio, thalita, macerio)
@@ -157,15 +175,15 @@ def converter():
         # Validações
         if 'file' not in request.files:
             return jsonify({'erro': 'Arquivo não fornecido'}), 400
-        
+
         arquivo = request.files['file']
         if arquivo.filename == '':
             return jsonify({'erro': 'Arquivo vazio'}), 400
-        
+
         if not is_allowed_file(arquivo.filename):
             formatos = ', '.join(FORMATOS_SUPORTADOS)
             return jsonify({'erro': f'Formato não suportado. Use: {formatos}'}), 400
-        
+
         # Parâmetros opcionais
         voz = request.form.get('voz', 'francisca').lower()
         vozes_mapeadas = {
@@ -175,24 +193,24 @@ def converter():
             'macerio': 'pt-BR-MacerioMultilingualNeural',
         }
         voz = vozes_mapeadas.get(voz, 'pt-BR-FranciscaNeural')
-        
+
         # Salva arquivo temporário
         filename = secure_filename(arquivo.filename)
         caminho_entrada = os.path.join(PASTA_UPLOADS, filename)
         arquivo.save(caminho_entrada)
-        
+
         # Nome do MP3 de saída
         nome_base = os.path.splitext(filename)[0]
         nome_saida = request.form.get('nome_saida', nome_base)
         if not nome_saida.lower().endswith('.mp3'):
             nome_saida += '.mp3'
-        
+
         caminho_saida = os.path.join(PASTA_UPLOADS, nome_saida)
-        
+
         # Gera ID único para esta conversão
         import uuid
         id_conversao = str(uuid.uuid4())[:8]
-        
+
         # Inicia processamento em thread separada
         with conversoes_lock:
             conversoes_em_progresso[id_conversao] = {
@@ -201,14 +219,14 @@ def converter():
                 'mensagem': 'Preparando conversão...',
                 'status': 'processando'
             }
-        
+
         thread = threading.Thread(
             target=processar_conversao,
             args=(id_conversao, caminho_entrada, caminho_saida, voz, nome_saida),
             daemon=True
         )
         thread.start()
-        
+
         return jsonify({
             'sucesso': True,
             'id_conversao': id_conversao,
@@ -217,7 +235,7 @@ def converter():
             'url_progresso': f'/api/progresso/{id_conversao}',
             'download_url': f'/api/download/{nome_saida}'
         })
-    
+
     except Exception as e:
         print(f"❌ Erro na conversão: {e}")
         return jsonify({'erro': str(e)}), 500
@@ -230,19 +248,19 @@ def download(nome_arquivo):
         # Validação de segurança: não permite .. ou /
         if '..' in nome_arquivo or '/' in nome_arquivo or '\\' in nome_arquivo:
             return jsonify({'erro': 'Caminho inválido'}), 400
-        
+
         caminho = os.path.join(PASTA_UPLOADS, secure_filename(nome_arquivo))
-        
+
         if not os.path.exists(caminho):
             return jsonify({'erro': 'Arquivo não encontrado'}), 404
-        
+
         return send_file(
             caminho,
             mimetype='audio/mpeg',
             as_attachment=True,
             download_name=nome_arquivo
         )
-    
+
     except Exception as e:
         print(f"❌ Erro no download: {e}")
         return jsonify({'erro': str(e)}), 500
@@ -263,9 +281,9 @@ def listar_arquivos():
                         'tamanho': f'{tamanho / (1024*1024):.2f} MB',
                         'url': f'/api/download/{arquivo}'
                     })
-        
+
         return jsonify({'arquivos': arquivos})
-    
+
     except Exception as e:
         print(f"❌ Erro ao listar arquivos: {e}")
         return jsonify({'erro': str(e)}), 500
@@ -278,9 +296,15 @@ def arquivo_grande(e):
 
 
 if __name__ == '__main__':
+    # Render injeta PORT como variável de ambiente.
+    # Em local, cai pro 5000.
+    porta = int(os.getenv('PORT', 5000))
+    # debug=False em produção (Render define RENDER=true automaticamente)
+    debug = not os.getenv('RENDER')
+
     print("=" * 60)
     print("🎧 AudioDoc API — Iniciando servidor...")
     print("=" * 60)
-    print("📍 Acesse: http://localhost:5000")
+    print(f"📍 Porta: {porta} | Debug: {debug}")
     print("=" * 60)
-    app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)
+    app.run(debug=debug, host='0.0.0.0', port=porta, threaded=True)

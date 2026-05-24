@@ -1,6 +1,26 @@
+# Variáveis de ambiente
 .env
-venv/
-saida_imagens/
-__pycache__/
+.env.local
+
+# Arquivos gerados pelo app
 uploads/
+saida_imagens/
 *.mp3
+*_roteiro.txt
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Editores
+.vscode/
+.idea/
+*.swp
+.DS_Store

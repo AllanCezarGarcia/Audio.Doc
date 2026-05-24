@@ -1,8 +1,0 @@
-pymupdf
-python-docx
-python-pptx
-google-genai
-python-dotenv
-Pillow
-edge-tts
-Flask
