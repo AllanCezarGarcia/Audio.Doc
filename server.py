@@ -101,8 +101,6 @@ def info():
         'vozes': {
             'francisca': 'pt-BR-FranciscaNeural',
             'antonio': 'pt-BR-AntonioNeural',
-            'thalita': 'pt-BR-ThalitaMultilingualNeural',
-            'macerio': 'pt-BR-MacerioMultilingualNeural',
         }
     })
 
