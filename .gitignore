@@ -2,4 +2,5 @@
 venv/
 saida_imagens/
 __pycache__/
+uploads/
 *.mp3
