@@ -486,36 +486,6 @@
             border: none;
         }
 
-        /* TUTORIAL */
-        .tutorial-grid { display: grid; gap: 24px; max-width: 800px; }
-        .step-card {
-            background-color: var(--bg-painel);
-            border: 1px solid var(--borda-padrao);
-            border-radius: 12px;
-            padding: 30px;
-            display: flex;
-            gap: 24px;
-            align-items: flex-start;
-        }
-        .step-number {
-            background-color: var(--azul-destaque);
-            color: white;
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            font-weight: 700;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-        .step-content h3 { font-size: 1.3rem; margin-bottom: 8px; color: var(--branco-suave); }
-        .step-content p { color: var(--cinza); font-size: 1.1rem; }
-        .step-content a { color: var(--azul-destaque); text-decoration: none; font-weight: 600; }
-        .step-content a:hover { text-decoration: underline; }
-
         /* MODAL */
         .modal-overlay {
             position: fixed;
@@ -573,17 +543,6 @@
             margin-bottom: 20px;
         }
         .btn-salvar:hover { background-color: #2563eb; }
-        .link-tutorial {
-            background: none;
-            border: none;
-            color: var(--cinza);
-            font-family: var(--font-body);
-            font-size: 1rem;
-            text-decoration: underline;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-        .link-tutorial:hover { color: var(--azul-destaque); }
         .btn-fechar {
             position: absolute;
             top: 20px;
@@ -602,6 +561,9 @@
     <div class="modal-overlay" id="modalApi">
         <div class="modal-content">
             <button class="btn-fechar" onclick="fecharModal()">×</button>
+            <h2 class="modal-title">Configuração Necessária</h2>
+            <p class="modal-desc">Para gerar seu primeiro audiobook, precisamos da sua chave API do Google Gemini.</p>
+            <input type="password" id="inputApiKey" class="input-api" placeholder="Cole sua Chave API aqui...">
             <button class="btn-salvar" onclick="salvarApiKey()">Salvar Chave e Continuar</button>
         </div>
     </div>
@@ -670,50 +632,10 @@
             <div class="grid-catalogo" id="gridCatalogo">
                 <!-- Cards gerados dinamicamente -->
             </div>
-        </div>
-
-        <!-- SEÇÃO TUTORIAL -->
-        <div id="secao-tutorial" class="secao-conteudo">
-            <section class="greeting-section">
-                <h1 class="greeting">Chave API do <span>Gemini</span></h1>
-                <p class="subtitle">Siga os passos abaixo para gerar sua chave gratuitamente e habilitar a transcrição.</p>
-            </section>
-
-            <div class="tutorial-grid">
-                <div class="step-card">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h3>Acesse o Google AI Studio</h3>
-                        <p>Vá até o site oficial do <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a> e faça login com sua conta do Google.</p>
-                    </div>
-                </div>
-                <div class="step-card">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h3>Encontre a área de API</h3>
-                        <p>No menu lateral esquerdo, procure pelo botão chamado <strong>"Get API key"</strong> ou <strong>"Obter chave de API"</strong> e clique nele.</p>
-                    </div>
-                </div>
-                <div class="step-card">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h3>Crie sua Chave</h3>
-                        <p>Clique no botão azul <strong>"Create API key"</strong>. Selecione a opção para criar em um novo projeto. O Google vai gerar um código longo (ex: AIzaSyB...).</p>
-                    </div>
-                </div>
-                <div class="step-card">
-                    <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h3>Copie e Cole</h3>
-                        <p>Copie esse código, volte para a aba "Gerar Audiobook" neste site, tente enviar um arquivo e cole sua chave no pop-up que aparecer.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+        </div></main>
 
     <script>
-        const API_URL = 'https://audio-doc-b12i.onrender.com/api';
+        const API_URL = 'http://localhost:5000/api';
 
         // Estado global dos players
         const playersState = {};
@@ -722,12 +644,16 @@
         // NAVEGAÇÃO
         // ==========================================
         function navegar(destino) {
-            ['gerar', 'biblioteca', 'tutorial'].forEach(s => {
-                document.getElementById(`secao-${s}`).classList.remove('ativa');
-                document.getElementById(`nav-${s}`).classList.remove('active');
+            ['gerar', 'biblioteca'].forEach(s => {
+                const secao = document.getElementById(`secao-${s}`);
+                const nav = document.getElementById(`nav-${s}`);
+                if (secao) secao.classList.remove('ativa');
+                if (nav) nav.classList.remove('active');
             });
-            document.getElementById(`secao-${destino}`).classList.add('ativa');
-            document.getElementById(`nav-${destino}`).classList.add('active');
+            const secaoAtiva = document.getElementById(`secao-${destino}`);
+            const navAtivo = document.getElementById(`nav-${destino}`);
+            if (secaoAtiva) secaoAtiva.classList.add('ativa');
+            if (navAtivo) navAtivo.classList.add('active');
             if (destino === 'biblioteca') carregarBiblioteca();
         }
 
@@ -801,8 +727,6 @@
         // ==========================================
         function abrirModal() { document.getElementById('modalApi').classList.add('show'); }
         function fecharModal() { document.getElementById('modalApi').classList.remove('show'); }
-        function irParaTutorial() { fecharModal(); navegar('tutorial'); }
-
         function salvarApiKey() {
             const input = document.getElementById('inputApiKey').value;
             if (input.trim() === '') { alert('Por favor, insira uma chave válida.'); return; }
@@ -1032,7 +956,7 @@
             playerEl.classList.add('ativo');
             cardAtual.classList.add('player-aberto');
             document.getElementById(`${id}_playbtn`).textContent = '\u23f8 Pausar';
-            btnPlay.textContent = '\U0001f3b5 Reproduzindo...';
+            btnPlay.textContent = '🎵 Reproduzindo...';
         }
 
         function togglePlay(id) {
