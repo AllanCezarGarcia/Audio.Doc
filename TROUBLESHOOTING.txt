@@ -1,0 +1,300 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║              🔧 GUIA DE RESOLUÇÃO DE PROBLEMAS - AudioDoc               ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+Se você está tendo problemas, siga este guia:
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: Arquivo .bat não abre
+════════════════════════════════════════════════════════════════════════════════
+
+Solução:
+1. Clique com botão direito no arquivo .bat
+2. Selecione "Abrir com..."
+3. Escolha "Prompt de Comando"
+
+Ou execute pela linha de comando:
+   cmd.exe /c c:\Audiodoc\rodar_servidor.bat
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: "Flask não encontrado" ou erro na importação
+════════════════════════════════════════════════════════════════════════════════
+
+Solução:
+1. Abra o Prompt de Comando
+2. Execute:
+   pip install Flask
+
+3. Verifique:
+   pip list | findstr Flask
+
+Deve mostrar algo como: Flask 2.x.x
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: Porta 5000 já está em uso
+════════════════════════════════════════════════════════════════════════════════
+
+Erro típico:
+   Address already in use
+   OSError: [WinError 10048]
+
+Solução 1: Feche o servidor anterior
+   - Procure se há outra janela do servidor aberta
+   - Feche com Alt+F4
+
+Solução 2: Use outra porta
+   - Edite server.py na última linha:
+   
+   Mude: app.run(debug=True, host='0.0.0.0', port=5000)
+   Para: app.run(debug=True, host='0.0.0.0', port=5001)
+   
+   - Então acesse: http://localhost:5001
+
+Solução 3: Mate o processo (Prompt de Comando como Admin)
+   netstat -ano | findstr :5000
+   taskkill /PID <numero> /F
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: Não consigo acessar http://localhost:5000
+════════════════════════════════════════════════════════════════════════════════
+
+Possíveis causas:
+
+1. Servidor não está rodando
+   ✓ Verifique se você executou rodar_servidor.bat
+   ✓ Você deve ver: "Running on http://127.0.0.1:5000"
+
+2. Firewall bloqueando
+   ✓ Permita Python no Firewall do Windows
+   ✓ Ou desative firewall temporariamente
+
+3. Navegador com problema
+   ✓ Tente outro navegador (Chrome, Firefox, Edge)
+   ✓ Limpe o cache: Ctrl+Shift+Delete
+
+4. Erro 500 na API
+   ✓ Verifique o console do servidor
+   ✓ Procure mensagens de erro em vermelho
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: "No module named 'extrair'" ou similares
+════════════════════════════════════════════════════════════════════════════════
+
+Causa: Você não está no diretório certo
+
+Solução:
+1. Abra Prompt de Comando
+2. Navigate para o diretório:
+   cd c:\Audiodoc
+3. Execute:
+   python server.py
+
+Não execute python de outro local!
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: Erro "GEMINI_API_KEY" ao enviar arquivo
+════════════════════════════════════════════════════════════════════════════════
+
+Causa: Falta chave de API do Google Gemini
+
+Solução:
+1. Obtenha sua chave em: https://aistudio.google.com/
+2. Crie o arquivo .env na pasta c:\Audiodoc com:
+   
+   GEMINI_API_KEY=sua_chave_aqui
+
+3. Ou defina como variável de ambiente (cmd como admin):
+   
+   setx GEMINI_API_KEY "sua_chave_aqui"
+
+4. Reinicie o servidor
+
+Nota: Sem isso, imagens não serão descritas (mas texto funciona)
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: Arquivo não é aceito (formato não suportado)
+════════════════════════════════════════════════════════════════════════════════
+
+Causa: Você tentou enviar um formato não suportado
+
+Formatos aceitos:
+  ✓ .pdf
+  ✓ .docx
+  ✓ .pptx
+  ✓ .txt
+
+Formatos NÃO aceitos:
+  ✗ .doc (use .docx)
+  ✗ .ppt (use .pptx)
+  ✗ .xlsx (use .pdf ou .txt)
+  ✗ .jpg, .png (use em documentos PDF/DOCX)
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: Arquivo muito grande (>100MB)
+════════════════════════════════════════════════════════════════════════════════
+
+Erro: "Arquivo muito grande (máximo 100MB)"
+
+Solução:
+1. Divida o arquivo em partes menores
+2. Processe uma parte por vez
+3. Combine os áudios depois
+
+Ou edite server.py linha 7:
+   app.config['MAX_CONTENT_LENGTH'] = 200 * 1024 * 1024  # 200MB
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: Áudio de baixa qualidade ou com cortes
+════════════════════════════════════════════════════════════════════════════════
+
+Causas possíveis:
+1. Mucho texto em um arquivo grande
+2. Imagens muito grandes
+3. Memória insuficiente
+
+Soluções:
+1. Aumente a memória do TAMANHO_MAX_PEDACO em gerar_audio.py:
+   TAMANHO_MAX_PEDACO = 5000  (ao invés de 3500)
+
+2. Divida arquivos grandes em partes
+
+3. Feche outros programas para liberar memória
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: "Cannot find module 'pymupdf'" ou similar
+════════════════════════════════════════════════════════════════════════════════
+
+Faltam dependências. Execute:
+
+   pip install -r requirements.txt
+
+Ou manualmente:
+   pip install pymupdf
+   pip install python-docx
+   pip install python-pptx
+   pip install google-genai
+   pip install Pillow
+   pip install edge-tts
+   pip install python-dotenv
+   pip install Flask
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: Arquivo não aparece na Biblioteca
+════════════════════════════════════════════════════════════════════════════════
+
+Possíveis motivos:
+1. Processamento ainda não terminou
+2. Erro durante conversão (procure na seção "gerar")
+3. Arquivo MP3 não foi salvo
+
+Debug:
+1. Abra a pasta: c:\Audiodoc\uploads\
+2. Procure por arquivos .mp3
+3. Se não houver, verifique os logs do servidor
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: "RuntimeError: ProactorEventLoop on a non-Windows platform"
+════════════════════════════════════════════════════════════════════════════════
+
+Causa: Problema com asyncio no edge-tts
+
+Solução rápida:
+Reinstale edge-tts:
+   pip uninstall edge-tts
+   pip install edge-tts --upgrade
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: Servidor fecha sozinho (sem motivo aparente)
+════════════════════════════════════════════════════════════════════════════════
+
+Causas:
+1. Erro não tratado no código
+2. Arquivo corrompido
+3. Falta de memória
+
+Debug:
+1. Abra Prompt de Comando
+2. Execute:
+   python server.py
+
+   (ao invés de usar .bat)
+
+3. Observe as mensagens de erro
+4. Reporte o erro
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: Preciso usar servidor em rede (outro computador)
+════════════════════════════════════════════════════════════════════════════════
+
+Solução:
+1. Edite server.py última linha para aceitar todas conexões:
+   
+   Mude: app.run(debug=True, host='0.0.0.0', port=5000)
+   
+   (host='0.0.0.0' JÁ está configurado)
+
+2. Descubra seu IP:
+   Prompt de Comando:
+   ipconfig
+   
+   Procure por "IPv4 Address" (ex: 192.168.1.100)
+
+3. No outro computador, acesse:
+   http://192.168.1.100:5000
+
+Nota: Firewall pode bloquear. Permita porta 5000.
+
+════════════════════════════════════════════════════════════════════════════════
+PROBLEMA: Quero executar sem janela do terminal
+════════════════════════════════════════════════════════════════════════════════
+
+Solução:
+1. Crie um novo arquivo: rodar_escondido.vbs
+
+   Conteúdo:
+   ---
+   CreateObject("WScript.Shell").Run "python server.py", 0
+   ---
+
+2. Salve como .vbs (VisualBasicScript)
+
+3. Clique duplo para executar escondido
+
+Parar servidor:
+   Prompt de Comando:
+   taskkill /IM python.exe /F
+
+════════════════════════════════════════════════════════════════════════════════
+COMO OBTER AJUDA AVANÇADA
+════════════════════════════════════════════════════════════════════════════════
+
+1. Valide sua instalação:
+   python validar_instalacao.py
+
+2. Verifique logs:
+   - Abra a janela do servidor
+   - Procure por mensagens em vermelho ou amarelo
+
+3. Teste a API diretamente:
+   - Abra http://localhost:5000/api/info
+   - Você deve ver JSON com informações
+
+4. Procure por erros específicos:
+   - Copie a mensagem de erro
+   - Procure no Google: "edge-tts error: ..."
+
+════════════════════════════════════════════════════════════════════════════════
+RECURSOS ÚTEIS
+════════════════════════════════════════════════════════════════════════════════
+
+• Documentação Flask: https://flask.palletsprojects.com/
+• Documentação Gemini: https://ai.google.dev/
+• Documentação edge-tts: https://github.com/rany2/edge-tts
+• Community: Discord/Reddit de Python
+
+════════════════════════════════════════════════════════════════════════════════
+
+Algum problema não listado aqui? Leia o arquivo INSTALAR_E_USAR.md para mais 
+informações sobre a arquitetura e como o sistema funciona.
+
+Boa sorte! 🚀

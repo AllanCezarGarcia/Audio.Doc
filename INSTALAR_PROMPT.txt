@@ -1,0 +1,78 @@
+═══════════════════════════════════════════════════════════════════════════════
+   INSTALAÇÃO PELO PROMPT DE COMANDO
+═══════════════════════════════════════════════════════════════════════════════
+
+Se os arquivos .bat não funcionarem, siga estes passos:
+
+PASSO 1: Abra o Prompt de Comando
+   • Pressione: Windows + R
+   • Digite: cmd
+   • Pressione: Enter
+
+PASSO 2: Vá para o diretório do projeto
+   Digite e pressione Enter:
+   
+   cd c:\Audiodoc
+
+PASSO 3: Instale as dependências
+   Digite e pressione Enter:
+   
+   pip install -r requirements.txt
+
+   Você verá algo assim:
+   ----
+   Collecting pymupdf
+   Collecting python-docx
+   ...
+   Successfully installed ...
+   ----
+
+PASSO 4: Verifique a instalação
+   Digite e pressione Enter:
+   
+   python validar_instalacao.py
+
+   Você deve ver:
+   ✅ TUDO ESTÁ PRONTO!
+
+PASSO 5: Inicie o servidor
+   Digite e pressione Enter:
+   
+   python server.py
+
+   Você verá:
+   ----
+   ============================================================
+   🎧 AudioDoc API — Iniciando servidor...
+   ============================================================
+   📍 Acesse: http://localhost:5000
+   ============================================================
+    * Running on http://127.0.0.1:5000
+   ----
+
+PASSO 6: Abra o navegador
+   • Abra seu navegador (Chrome, Firefox, Edge, etc)
+   • Vá para: http://localhost:5000
+   • Pronto! 🎉
+
+═══════════════════════════════════════════════════════════════════════════════
+   ERROS COMUNS
+═══════════════════════════════════════════════════════════════════════════════
+
+❌ Erro: "python: command not found"
+   Solução: Python não está instalado
+   • Baixe em: https://www.python.org/downloads/
+   • Marque "Add Python to PATH" durante instalação
+   • Reinicie o Prompt de Comando
+
+❌ Erro: "ModuleNotFoundError: No module named 'pymupdf'"
+   Solução: Dependências não instaladas
+   • Execute: pip install -r requirements.txt
+   • Aguarde completar
+
+❌ Erro: "Address already in use"
+   Solução: Porta 5000 está em uso
+   • Feche outro servidor que estiver rodando
+   • Ou edite server.py e mude port=5000 para port=5001
+
+═══════════════════════════════════════════════════════════════════════════════

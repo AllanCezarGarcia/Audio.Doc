@@ -1,0 +1,5 @@
+.env
+venv/
+saida_imagens/
+__pycache__/
+*.mp3

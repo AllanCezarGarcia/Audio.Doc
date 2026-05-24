@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acervo Virtual | Área do Aluno</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-principal: #000000;
+            --bg-painel: #0A0A0A;
+            --azul-escuro: #0f172a;
+            --azul-borda: #1e3a8a;
+            --azul-destaque: #3b82f6;
+            --branco-suave: #F3F4F6;
+            --cinza: #9CA3AF;
+            --borda-padrao: #27272a;
+            --font-display: 'Sora', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            background-color: var(--bg-principal);
+            color: var(--branco-suave);
+            font-family: var(--font-body);
+            line-height: 1.6;
+        }
+
+        header {
+            border-bottom: 1px solid var(--borda-padrao);
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--branco-suave);
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            cursor: pointer;
+        }
+
+        .logo span { color: var(--azul-destaque); }
+
+        .nav-links { display: flex; gap: 40px; }
+
+        .nav-links button {
+            background: none;
+            border: none;
+            color: var(--cinza);
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding-bottom: 6px;
+            position: relative;
+            opacity: 0.7;
+            cursor: pointer;
+            transition: color 0.4s ease, opacity 0.4s ease;
+        }
+
+        .nav-links button::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--azul-destaque);
+            transition: width 0.4s ease;
+        }
+
+        .nav-links button:hover, .nav-links button.active {
+            color: var(--branco-suave);
+            opacity: 1;
+        }
+
+        .nav-links button:hover::after, .nav-links button.active::after {
+            width: 100%;
+        }
+
+        main { max-width: 1400px; margin: 0 auto; padding: 60px 32px; }
+        
+        .secao-conteudo { display: none; }
+        .secao-conteudo.ativa { display: block; animation: fadeIn 0.5s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .greeting-section { margin-bottom: 60px; }
+        .greeting { font-family: var(--font-display); font-size: 3rem; font-weight: 700; margin-bottom: 12px; }
+        .greeting span { color: var(--azul-destaque); }
+        .subtitle { color: var(--cinza); font-size: 1.3rem; }
+
+        /* SEÇÃO GERAR */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+        .card-upload {
+            background-color: var(--bg-painel);
+            border: 2px solid var(--borda-padrao);
+            border-radius: 12px;
+            padding: 50px;
+            transition: border-color 0.4s ease;
+        }
+        .card-upload:hover { border-color: var(--azul-destaque); }
+        
+        .card-title { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--branco-suave); margin-bottom: 24px; }
+
+        .drop-zone {
+            border: 2px dashed var(--azul-borda);
+            background-color: rgba(15, 23, 42, 0.3);
+            border-radius: 12px;
+            padding: 80px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--azul-destaque);
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        .drop-zone-icon { font-size: 3rem; margin-bottom: 20px; color: var(--azul-destaque); }
+        .drop-zone-text { color: var(--branco-suave); font-size: 1.2rem; font-weight: 500; margin-bottom: 30px; }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--branco-suave);
+            border: 2px solid var(--azul-borda);
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            opacity: 0.9;
+            transition: all 0.4s ease;
+        }
+        .btn-outline:hover {
+            border-color: var(--azul-destaque);
+            color: var(--azul-destaque);
+            opacity: 1;
+        }
+
+        .file-status { margin-top: 30px; font-size: 1.1rem; font-weight: 600; color: var(--branco-suave); display: none; align-items: center; gap: 12px; }
+        .file-status.active { display: flex; }
+        .status-dot { width: 12px; height: 12px; background-color: var(--azul-destaque); border-radius: 50%; box-shadow: 0 0 12px var(--azul-destaque); }
+
+        /* BIBLIOTECA */
+        .grid-catalogo {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+            align-items: start;
+        }
+
+        .card-livro {
+            background-color: var(--bg-painel);
+            border: 2px solid var(--borda-padrao);
+            border-radius: 16px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+            overflow: hidden;
+        }
+        .card-livro:hover { border-color: var(--azul-destaque); box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1); }
+
+        /* Card ativo expande para ocupar todas as colunas da linha */
+        .card-livro.player-aberto {
+            grid-column: 1 / -1;
+            border-color: var(--azul-destaque);
+            box-shadow: 0 8px 40px rgba(59, 130, 246, 0.15);
+        }
+
+        /* Layout interno do player quando expandido */
+        .card-livro.player-aberto .audio-player {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .card-livro.player-aberto .player-controles-e-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .card-livro.player-aberto .player-controles {
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+        }
+
+        .card-livro.player-aberto .player-bottom {
+            flex-wrap: nowrap;
+            justify-content: flex-end;
+        }
+
+        .card-livro-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .card-livro-info { flex: 1; min-width: 0; }
+
+        .indicador-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #111;
+            border: 1px solid var(--borda-padrao);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+            white-space: nowrap;
+        }
+
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot.concluido { background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+        .dot.processando { background-color: var(--azul-destaque); animation: pulse 1.5s infinite; }
+
+        .livro-titulo {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--branco-suave);
+            line-height: 1.4;
+            word-break: break-word;
+            margin-bottom: 6px;
+        }
+        .livro-data { color: var(--cinza); font-size: 0.9rem; }
+
+        /* BOTÃO DE DOWNLOAD */
+        .btn-download {
+            flex-shrink: 0;
+            background: transparent;
+            border: 1.5px solid var(--azul-borda);
+            color: var(--cinza);
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .btn-download:hover {
+            border-color: var(--azul-destaque);
+            color: var(--azul-destaque);
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        /* BOTÃO PLAY PRINCIPAL */
+        .btn-play-enorme {
+            background-color: var(--azul-destaque);
+            color: #ffffff;
+            border: none;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .btn-play-enorme:hover { background-color: #2563eb; transform: scale(1.01); }
+        .btn-play-enorme:active { transform: scale(0.98); }
+
+        /* ====================================================
+           PLAYER DE ÁUDIO — DESIGN COMPLETO
+           ==================================================== */
+        .audio-player {
+            background: linear-gradient(135deg, #0f172a 0%, #0a0f1e 100%);
+            border: 1px solid var(--azul-borda);
+            border-radius: 14px;
+            padding: 22px;
+            display: none;
+            flex-direction: column;
+            gap: 18px;
+            transition: all 0.4s ease;
+        }
+        .audio-player.ativo { display: flex; }
+
+        /* Linha 1: título + tempo */
+        .player-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .player-titulo-audio {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--branco-suave);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+        }
+        .player-tempos {
+            font-size: 0.85rem;
+            color: var(--cinza);
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Barra de progresso */
+        .progress-wrap {
+            position: relative;
+            height: 6px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: height 0.2s ease;
+        }
+        .progress-wrap:hover { height: 9px; }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--azul-destaque), #60a5fa);
+            border-radius: 4px;
+            width: 0%;
+            pointer-events: none;
+            transition: width 0.1s linear;
+        }
+        .progress-thumb {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(59,130,246,0.6);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            left: 0%;
+        }
+        .progress-wrap:hover .progress-thumb { opacity: 1; }
+
+        /* Controles centrais */
+        .player-controles {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-ctrl {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--cinza);
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: var(--font-body);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .btn-ctrl:hover {
+            background: rgba(59,130,246,0.15);
+            border-color: var(--azul-borda);
+            color: var(--branco-suave);
+        }
+        .btn-ctrl:active { transform: scale(0.95); }
+
+        .btn-ctrl-play {
+            background-color: var(--azul-destaque);
+            border-color: var(--azul-destaque);
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 10px;
+        }
+        .btn-ctrl-play:hover { background-color: #2563eb; border-color: #2563eb; color: #fff; }
+
+        /* Linha inferior: velocidade + volume */
+        .player-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .velocidade-grupo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .velocidade-label {
+            font-size: 0.8rem;
+            color: var(--cinza);
+            font-weight: 600;
+        }
+        .btn-vel {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--cinza);
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            font-family: var(--font-body);
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-vel:hover { background: rgba(59,130,246,0.15); border-color: var(--azul-borda); color: var(--branco-suave); }
+        .btn-vel.ativo { background: var(--azul-destaque); border-color: var(--azul-destaque); color: #fff; }
+
+        .volume-grupo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .volume-icone { font-size: 1rem; color: var(--cinza); }
+        .volume-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 80px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.15);
+            outline: none;
+            cursor: pointer;
+        }
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--azul-destaque);
+            cursor: pointer;
+        }
+        .volume-slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--azul-destaque);
+            cursor: pointer;
+            border: none;
+        }
+
+        /* TUTORIAL */
+        .tutorial-grid { display: grid; gap: 24px; max-width: 800px; }
+        .step-card {
+            background-color: var(--bg-painel);
+            border: 1px solid var(--borda-padrao);
+            border-radius: 12px;
+            padding: 30px;
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+        }
+        .step-number {
+            background-color: var(--azul-destaque);
+            color: white;
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .step-content h3 { font-size: 1.3rem; margin-bottom: 8px; color: var(--branco-suave); }
+        .step-content p { color: var(--cinza); font-size: 1.1rem; }
+        .step-content a { color: var(--azul-destaque); text-decoration: none; font-weight: 600; }
+        .step-content a:hover { text-decoration: underline; }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        .modal-content {
+            background-color: var(--bg-painel);
+            border: 2px solid var(--azul-borda);
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.show .modal-content { transform: scale(1); }
+        .modal-title { font-family: var(--font-display); font-size: 1.6rem; color: var(--branco-suave); margin-bottom: 16px; }
+        .modal-desc { color: var(--cinza); font-size: 1.1rem; margin-bottom: 24px; }
+        .input-api {
+            width: 100%;
+            background-color: var(--bg-principal);
+            border: 1px solid var(--borda-padrao);
+            color: var(--branco-suave);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-family: var(--font-body);
+            margin-bottom: 24px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        .input-api:focus { border-color: var(--azul-destaque); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        .btn-salvar {
+            background-color: var(--azul-destaque);
+            color: white;
+            border: none;
+            padding: 16px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .btn-salvar:hover { background-color: #2563eb; }
+        .link-tutorial {
+            background: none;
+            border: none;
+            color: var(--cinza);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            text-decoration: underline;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .link-tutorial:hover { color: var(--azul-destaque); }
+        .btn-fechar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--cinza);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .btn-fechar:hover { color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="modal-overlay" id="modalApi">
+        <div class="modal-content">
+            <button class="btn-fechar" onclick="fecharModal()">×</button>
+            <h2 class="modal-title">Configuração Necessária</h2>
+            <p class="modal-desc">Para gerar seu primeiro audiobook, precisamos da sua chave API do Google Gemini.</p>
+            <input type="password" id="inputApiKey" class="input-api" placeholder="Cole sua Chave API aqui...">
+            <button class="btn-salvar" onclick="salvarApiKey()">Salvar Chave e Continuar</button>
+            <button class="link-tutorial" onclick="irParaTutorial()">Saiba como pegar sua Chave API do Gemini</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="nav-container">
+            <a class="logo" onclick="navegar('gerar')">Audio<span>.Doc</span></a>
+            <nav class="nav-links">
+                <button id="nav-gerar" class="active" onclick="navegar('gerar')">Gerar Audiobook</button>
+                <button id="nav-biblioteca" onclick="navegar('biblioteca')">Biblioteca</button>
+                <button id="nav-tutorial" onclick="navegar('tutorial')">Como conseguir sua chave API</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- SEÇÃO GERAR -->
+        <div id="secao-gerar" class="secao-conteudo ativa">
+            <section class="greeting-section">
+                <h1 class="greeting">Olá, <span>bem vindo</span></h1>
+                <p class="subtitle">ao seu ambiente de transcrição acadêmica.</p>
+            </section>
+
+            <section class="dashboard-grid">
+                <div class="card-upload">
+                    <h2 class="card-title">Nova Transcrição</h2>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <label for="selectVoz" style="display: block; margin-bottom: 8px; color: var(--branco-suave); font-weight: 600;">Escolha a voz:</label>
+                        <select id="selectVoz" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--borda-padrao); background-color: var(--bg-principal); color: var(--branco-suave); font-size: 1rem; cursor: pointer;">
+                            <!-- Opções carregadas dinamicamente pelo JS -->
+                        </select>
+                    </div>
+                    
+                    <div class="drop-zone" id="dropZone" onclick="verificarUpload(event)">
+                        <div class="drop-zone-icon">📄</div>
+                        <p class="drop-zone-text">Arraste seus documentos (.txt, .pdf, .docx, .pptx) aqui ou clique para procurar</p>
+                        <input type="file" id="fileInput" accept=".txt,.pdf,.docx,.pptx" style="display: none;">
+                        <button class="btn-outline">Selecionar Arquivo</button>
+                    </div>
+
+                    <div class="file-status" id="fileStatus">
+                        <div class="status-dot"></div>
+                        <span id="fileName">Nenhum arquivo selecionado</span>
+                    </div>
+
+                    <div id="progressContainer" style="display: none; margin-top: 30px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <span style="color: var(--branco-suave); font-weight: 600;" id="progressLabel">Processando...</span>
+                            <span style="color: var(--azul-destaque); font-weight: 700;" id="progressPercent">0%</span>
+                        </div>
+                        <div style="background-color: var(--azul-escuro); border-radius: 8px; height: 8px; overflow: hidden; border: 1px solid var(--azul-borda);">
+                            <div id="progressBar" style="background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 8px;"></div>
+                        </div>
+                        <p id="progressMessage" style="color: var(--cinza); font-size: 0.95rem; margin-top: 12px; text-align: center;"></p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- SEÇÃO BIBLIOTECA -->
+        <div id="secao-biblioteca" class="secao-conteudo">
+            <section class="greeting-section">
+                <h1 class="greeting">Sua <span>Biblioteca</span></h1>
+                <p class="subtitle">Arquivos processados e prontos para reprodução.</p>
+            </section>
+            <div class="grid-catalogo" id="gridCatalogo">
+                <!-- Cards gerados dinamicamente -->
+            </div>
+        </div>
+
+        <!-- SEÇÃO TUTORIAL -->
+        <div id="secao-tutorial" class="secao-conteudo">
+            <section class="greeting-section">
+                <h1 class="greeting">Chave API do <span>Gemini</span></h1>
+                <p class="subtitle">Siga os passos abaixo para gerar sua chave gratuitamente e habilitar a transcrição.</p>
+            </section>
+
+            <div class="tutorial-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Acesse o Google AI Studio</h3>
+                        <p>Vá até o site oficial do <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a> e faça login com sua conta do Google.</p>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Encontre a área de API</h3>
+                        <p>No menu lateral esquerdo, procure pelo botão chamado <strong>"Get API key"</strong> ou <strong>"Obter chave de API"</strong> e clique nele.</p>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Crie sua Chave</h3>
+                        <p>Clique no botão azul <strong>"Create API key"</strong>. Selecione a opção para criar em um novo projeto. O Google vai gerar um código longo (ex: AIzaSyB...).</p>
+                    </div>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Copie e Cole</h3>
+                        <p>Copie esse código, volte para a aba "Gerar Audiobook" neste site, tente enviar um arquivo e cole sua chave no pop-up que aparecer.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+
+        // Estado global dos players
+        const playersState = {};
+
+        // ==========================================
+        // NAVEGAÇÃO
+        // ==========================================
+        function navegar(destino) {
+            ['gerar', 'biblioteca', 'tutorial'].forEach(s => {
+                document.getElementById(`secao-${s}`).classList.remove('ativa');
+                document.getElementById(`nav-${s}`).classList.remove('active');
+            });
+            document.getElementById(`secao-${destino}`).classList.add('ativa');
+            document.getElementById(`nav-${destino}`).classList.add('active');
+            if (destino === 'biblioteca') carregarBiblioteca();
+        }
+
+        // ==========================================
+        // VOZES
+        // ==========================================
+        // Vozes disponíveis — aliases do edge-tts PT-BR usados pelo backend
+        const VOZES_DISPONIVEIS = {
+            francisca: { nome: "Francisca",  descricao: "Feminino · Padrão"  },
+            antonio:   { nome: "Antonio",    descricao: "Masculino"           },
+            thalita:   { nome: "Thalita",    descricao: "Feminino · Casual"   },
+            macerio:   { nome: "Macerio",    descricao: "Masculino · Casual"  },
+        };
+
+        let vozSelecionada = 'francisca';
+
+        function popularSelectVozes(mapaVozes) {
+            const selectVoz = document.getElementById('selectVoz');
+            if (!selectVoz) return;
+            selectVoz.innerHTML = '';
+            for (const [alias, info] of Object.entries(mapaVozes)) {
+                const option = document.createElement('option');
+                option.value = alias;
+                // Usa o campo "nome" se vier do backend, senão usa o objeto local
+                option.textContent = typeof info === 'object' ? `${info.nome} — ${info.descricao}` : info;
+                if (alias === vozSelecionada) option.selected = true;
+                selectVoz.appendChild(option);
+            }
+        }
+
+        async function carregarVozes() {
+            // Popula imediatamente com as vozes locais (fallback garantido)
+            popularSelectVozes(VOZES_DISPONIVEIS);
+
+            // Tenta buscar vozes do backend para sobrescrever se houver mais
+            try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 3000);
+                const response = await fetch(`${API_URL}/info`, { signal: controller.signal });
+                clearTimeout(timeout);
+
+                if (!response.ok) throw new Error('Backend não retornou vozes');
+                const dados = await response.json();
+
+                // Backend retorna { vozes: { alias: nome_completo } }
+                // Converte para o formato { alias: { nome, descricao } }
+                if (dados.vozes && Object.keys(dados.vozes).length > 0) {
+                    const mapaConvertido = {};
+                    for (const [alias, nomeOuObj] of Object.entries(dados.vozes)) {
+                        if (typeof nomeOuObj === 'string') {
+                            // Capitaliza o alias como nome de exibição
+                            mapaConvertido[alias] = {
+                                nome: alias.charAt(0).toUpperCase() + alias.slice(1),
+                                descricao: nomeOuObj // nome técnico como subtítulo
+                            };
+                        } else {
+                            mapaConvertido[alias] = nomeOuObj;
+                        }
+                    }
+                    popularSelectVozes(mapaConvertido);
+                    console.log('Vozes carregadas do backend:', Object.keys(mapaConvertido));
+                }
+            } catch (error) {
+                // Silencioso — o select já está populado com as vozes locais
+                console.warn('Usando vozes locais (backend indisponível):', error.message);
+            }
+        }
+
+        // ==========================================
+        // MODAL
+        // ==========================================
+        function abrirModal() { document.getElementById('modalApi').classList.add('show'); }
+        function fecharModal() { document.getElementById('modalApi').classList.remove('show'); }
+        function irParaTutorial() { fecharModal(); navegar('tutorial'); }
+
+        function salvarApiKey() {
+            const input = document.getElementById('inputApiKey').value;
+            if (input.trim() === '') { alert('Por favor, insira uma chave válida.'); return; }
+            localStorage.setItem('gemini_api_key', input.trim());
+            alert('Chave salva com sucesso! Agora você pode enviar seus arquivos.');
+            fecharModal();
+            document.getElementById('fileInput').click();
+        }
+
+        // ==========================================
+        // UPLOAD
+        // ==========================================
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const fileStatus = document.getElementById('fileStatus');
+        const fileNameDisplay = document.getElementById('fileName');
+
+        function verificarUpload(e) { e.stopPropagation(); fileInput.click(); }
+
+        fileInput.addEventListener('change', processarArquivoSelecionado);
+
+        function processarArquivoSelecionado() {
+            if (fileInput.files && fileInput.files.length > 0) {
+                const arquivo = fileInput.files[0];
+                fileNameDisplay.textContent = `📤 Enviando: ${arquivo.name}`;
+                fileStatus.classList.add('active');
+                dropZone.style.borderColor = 'var(--azul-destaque)';
+                enviarArquivoParaAPI(arquivo);
+            }
+        }
+
+        async function enviarArquivoParaAPI(arquivo) {
+            try {
+                const formData = new FormData();
+                formData.append('file', arquivo);
+                formData.append('voz', vozSelecionada);
+                formData.append('nome_saida', arquivo.name.split('.')[0] + '_audio');
+                fileNameDisplay.textContent = `⏳ Enviando: ${arquivo.name}`;
+
+                const response = await fetch(`${API_URL}/converter`, { method: 'POST', body: formData });
+                const resultado = await response.json();
+                if (!response.ok) throw new Error(resultado.erro || 'Erro ao converter arquivo');
+                monitorarProgresso(resultado.id_conversao, resultado.arquivo_saida);
+            } catch (error) {
+                console.error('Erro:', error);
+                fileNameDisplay.textContent = `❌ Erro: ${error.message}`;
+                document.getElementById('progressContainer').style.display = 'none';
+                fileInput.value = '';
+            }
+        }
+
+        function monitorarProgresso(idConversao, nomeArquivo) {
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressLabel = document.getElementById('progressLabel');
+            const progressMessage = document.getElementById('progressMessage');
+            progressContainer.style.display = 'block';
+
+            const eventSource = new EventSource(`${API_URL}/progresso/${idConversao}`);
+            eventSource.onmessage = (event) => {
+                try {
+                    const dados = JSON.parse(event.data);
+                    const progresso = Math.round(dados.progresso || 0);
+                    progressBar.style.width = progresso + '%';
+                    progressPercent.textContent = progresso + '%';
+                    progressLabel.textContent = dados.etapa || 'Processando...';
+                    progressMessage.textContent = dados.mensagem || '';
+                    if (dados.status === 'concluido') {
+                        eventSource.close();
+                        fileNameDisplay.textContent = `✅ Concluído: ${nomeArquivo}`;
+                        fileInput.value = '';
+                        setTimeout(() => { progressContainer.style.display = 'none'; navegar('biblioteca'); }, 2000);
+                    } else if (dados.status === 'erro') {
+                        eventSource.close();
+                        fileNameDisplay.textContent = `❌ Erro: ${dados.mensagem}`;
+                        fileInput.value = '';
+                    }
+                } catch (err) { console.error('Erro ao processar progresso:', err); }
+            };
+            eventSource.onerror = () => { eventSource.close(); progressContainer.style.display = 'none'; };
+        }
+
+        // DRAG AND DROP
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }, false));
+        ['dragenter', 'dragover'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.add('dragover'), false));
+        ['dragleave', 'drop'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('dragover'), false));
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) { fileInput.files = files; processarArquivoSelecionado(); }
+        }, false);
+
+        // ==========================================
+        // BIBLIOTECA
+        // ==========================================
+        async function carregarBiblioteca() {
+            const grid = document.getElementById('gridCatalogo');
+            grid.innerHTML = '<p style="color: var(--cinza); text-align: center; padding: 40px; grid-column: 1/-1;">Carregando...</p>';
+
+            try {
+                const response = await fetch(`${API_URL}/arquivos`);
+                const dados = await response.json();
+                grid.innerHTML = '';
+
+                if (dados.arquivos.length === 0) {
+                    grid.innerHTML = '<p style="color: var(--cinza); font-size: 1.2rem; grid-column: 1/-1; text-align: center; padding: 60px 0;">Nenhum áudio gerado ainda. Comece a criar! 🎧</p>';
+                    return;
+                }
+
+                dados.arquivos.forEach(arquivo => {
+                    const card = criarCardLivro(arquivo);
+                    grid.appendChild(card);
+                });
+
+            } catch (error) {
+                grid.innerHTML = `<p style="color: #f87171; text-align: center; grid-column: 1/-1;">Erro ao carregar arquivos: ${error.message}</p>`;
+            }
+        }
+
+        function criarCardLivro(arquivo) {
+            const id = 'player_' + arquivo.nome.replace(/[^a-z0-9]/gi, '_');
+            const urlDownload = `${API_URL}/download/${arquivo.nome}`;
+
+            const card = document.createElement('div');
+            card.className = 'card-livro';
+            card.innerHTML = `
+                <div class="card-livro-header">
+                    <div class="card-livro-info">
+                        <div class="indicador-status"><div class="dot concluido"></div> Pronto</div>
+                        <h3 class="livro-titulo">${arquivo.nome}</h3>
+                        <p class="livro-data">Tamanho: ${arquivo.tamanho}</p>
+                    </div>
+                    <a href="${urlDownload}" download="${arquivo.nome}" class="btn-download" title="Baixar áudio">
+                        ⬇
+                    </a>
+                </div>
+
+                <button class="btn-play-enorme" onclick="togglePlayer('${id}', '${arquivo.nome}', this)">
+                    ▶ OUVIR AGORA
+                </button>
+
+                <div class="audio-player" id="${id}">
+                    <div class="player-top">
+                        <span class="player-titulo-audio">${arquivo.nome}</span>
+                        <span class="player-tempos">
+                            <span id="${id}_atual">0:00</span> / <span id="${id}_total">0:00</span>
+                        </span>
+                    </div>
+
+                    <div class="progress-wrap" id="${id}_wrap" onclick="seekAudio('${id}', event)">
+                        <div class="progress-fill" id="${id}_fill"></div>
+                        <div class="progress-thumb" id="${id}_thumb"></div>
+                    </div>
+
+                    <div class="player-controles-e-bottom">
+                        <div class="player-controles">
+                            <button class="btn-ctrl" onclick="retroceder('${id}', 15)" title="Retroceder 15s">⏪ 15s</button>
+                            <button class="btn-ctrl" onclick="retroceder('${id}', 5)" title="Retroceder 5s">⏮ 5s</button>
+                            <button class="btn-ctrl btn-ctrl-play" id="${id}_playbtn" onclick="togglePlay('${id}')">⏸ Pausar</button>
+                            <button class="btn-ctrl" onclick="avancar('${id}', 5)" title="Avançar 5s">5s ⏭</button>
+                            <button class="btn-ctrl" onclick="avancar('${id}', 15)" title="Avançar 15s">15s ⏩</button>
+                        </div>
+
+                        <div class="player-bottom">
+                            <div class="velocidade-grupo">
+                                <span class="velocidade-label">Velocidade:</span>
+                                ${[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map(v =>
+                                    `<button class="btn-vel${v === 1 ? ' ativo' : ''}" onclick="definirVelocidade('${id}', ${v}, this)">${v}x</button>`
+                                ).join('')}
+                            </div>
+                            <div class="volume-grupo">
+                                <span class="volume-icone">🔊</span>
+                                <input type="range" class="volume-slider" min="0" max="1" step="0.05" value="1"
+                                       oninput="ajustarVolume('${id}', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // ==========================================
+        // PLAYER — FUNÇÕES
+        // ==========================================
+        function togglePlayer(id, nomeArquivo, btnPlay) {
+            const playerEl = document.getElementById(id);
+            const cardAtual = playerEl.closest('.card-livro');
+
+            // Se player já está aberto, apenas dá play/pause
+            if (playerEl.classList.contains('ativo')) {
+                togglePlay(id);
+                return;
+            }
+
+            // Fecha todos os outros players e remove expansão
+            document.querySelectorAll('.audio-player.ativo').forEach(p => {
+                const pid = p.id;
+                if (playersState[pid] && playersState[pid].audio) {
+                    playersState[pid].audio.pause();
+                }
+                p.classList.remove('ativo');
+                const btnAnterior = p.closest('.card-livro').querySelector('.btn-play-enorme');
+                if (btnAnterior) btnAnterior.textContent = '\u25b6 OUVIR AGORA';
+            });
+            document.querySelectorAll('.card-livro.player-aberto').forEach(c => c.classList.remove('player-aberto'));
+
+            // Cria o áudio
+            const urlAudio = `${API_URL}/download/${nomeArquivo}`;
+            const audio = new Audio(urlAudio);
+            playersState[id] = { audio, velocidade: 1 };
+
+            audio.addEventListener('loadedmetadata', () => {
+                document.getElementById(`${id}_total`).textContent = formatarTempo(audio.duration);
+            });
+
+            audio.addEventListener('timeupdate', () => atualizarProgresso(id));
+            audio.addEventListener('ended', () => {
+                document.getElementById(`${id}_playbtn`).textContent = '\u25b6 Ouvir';
+                btnPlay.textContent = '\u25b6 OUVIR AGORA';
+            });
+
+            audio.play().catch(err => console.error('Erro ao reproduzir:', err));
+
+            // Abre player e expande APENAS este card
+            playerEl.classList.add('ativo');
+            cardAtual.classList.add('player-aberto');
+            document.getElementById(`${id}_playbtn`).textContent = '\u23f8 Pausar';
+            btnPlay.textContent = '\U0001f3b5 Reproduzindo...';
+        }
+
+        function togglePlay(id) {
+            const state = playersState[id];
+            if (!state) return;
+            const { audio } = state;
+            const btn = document.getElementById(`${id}_playbtn`);
+
+            if (audio.paused) {
+                audio.play();
+                btn.textContent = '⏸ Pausar';
+            } else {
+                audio.pause();
+                btn.textContent = '▶ Continuar';
+            }
+        }
+
+        function avancar(id, segundos) {
+            const state = playersState[id];
+            if (!state) return;
+            state.audio.currentTime = Math.min(state.audio.currentTime + segundos, state.audio.duration);
+        }
+
+        function retroceder(id, segundos) {
+            const state = playersState[id];
+            if (!state) return;
+            state.audio.currentTime = Math.max(state.audio.currentTime - segundos, 0);
+        }
+
+        function definirVelocidade(id, velocidade, btn) {
+            const state = playersState[id];
+            if (!state) return;
+            state.audio.playbackRate = velocidade;
+            state.velocidade = velocidade;
+
+            // Atualiza botões ativos
+            btn.closest('.velocidade-grupo').querySelectorAll('.btn-vel').forEach(b => b.classList.remove('ativo'));
+            btn.classList.add('ativo');
+        }
+
+        function ajustarVolume(id, valor) {
+            const state = playersState[id];
+            if (!state) return;
+            state.audio.volume = parseFloat(valor);
+        }
+
+        function seekAudio(id, event) {
+            const state = playersState[id];
+            if (!state) return;
+            const wrap = document.getElementById(`${id}_wrap`);
+            const rect = wrap.getBoundingClientRect();
+            const ratio = (event.clientX - rect.left) / rect.width;
+            state.audio.currentTime = ratio * state.audio.duration;
+        }
+
+        function atualizarProgresso(id) {
+            const state = playersState[id];
+            if (!state) return;
+            const { audio } = state;
+            if (!audio.duration) return;
+
+            const pct = (audio.currentTime / audio.duration) * 100;
+
+            const fill = document.getElementById(`${id}_fill`);
+            const thumb = document.getElementById(`${id}_thumb`);
+            const atual = document.getElementById(`${id}_atual`);
+
+            if (fill) fill.style.width = pct + '%';
+            if (thumb) thumb.style.left = pct + '%';
+            if (atual) atual.textContent = formatarTempo(audio.currentTime);
+        }
+
+        function formatarTempo(segundos) {
+            if (isNaN(segundos)) return '0:00';
+            const m = Math.floor(segundos / 60);
+            const s = Math.floor(segundos % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', () => {
+            // Registra listener de mudança de voz ANTES do fetch
+            const selectVoz = document.getElementById('selectVoz');
+            if (selectVoz) {
+                selectVoz.addEventListener('change', (e) => {
+                    vozSelecionada = e.target.value;
+                    console.log('Voz selecionada:', vozSelecionada);
+                });
+            }
+            carregarVozes();
+        });
+    </script>
+</body>
+</html>
