@@ -7,6 +7,7 @@ import os
 import tempfile
 import threading
 import json
+from flask_cors import CORS
 from queue import Queue
 from flask import Flask, request, jsonify, send_file, Response
 from werkzeug.utils import secure_filename
@@ -14,6 +15,7 @@ from extrair import extrair_conteudo, FORMATOS_SUPORTADOS
 from gerar_audio import gerar_audio_de_blocos
 
 app = Flask(__name__, static_folder='.')
+CORS(app)
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max upload
 
 PASTA_TEMP = tempfile.gettempdir()
