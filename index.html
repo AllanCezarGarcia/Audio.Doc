@@ -3,1049 +3,567 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acervo Virtual | Área do Aluno</title>
+    <title>Audio.Doc | Área do Aluno</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
-    
     <style>
         :root {
-            --bg-principal: #000000;
+            --bg: #000;
             --bg-painel: #0A0A0A;
             --azul-escuro: #0f172a;
             --azul-borda: #1e3a8a;
-            --azul-destaque: #3b82f6;
-            --branco-suave: #F3F4F6;
+            --azul: #3b82f6;
+            --branco: #F3F4F6;
             --cinza: #9CA3AF;
-            --borda-padrao: #27272a;
-            --font-display: 'Sora', sans-serif;
-            --font-body: 'Inter', sans-serif;
+            --borda: #27272a;
+            --font-d: 'Sora', sans-serif;
+            --font-b: 'Inter', sans-serif;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        body { background: var(--bg); color: var(--branco); font-family: var(--font-b); line-height: 1.6; }
 
-        body {
-            background-color: var(--bg-principal);
-            color: var(--branco-suave);
-            font-family: var(--font-body);
-            line-height: 1.6;
-        }
+        /* HEADER */
+        header { border-bottom: 1px solid var(--borda); background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
+        .nav-wrap { max-width: 1400px; margin: 0 auto; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: var(--font-d); font-weight: 700; font-size: 1.4rem; color: var(--branco); text-decoration: none; cursor: pointer; letter-spacing: -0.5px; }
+        .logo span { color: var(--azul); }
+        .nav-links { display: flex; gap: 8px; }
+        .nav-links button { background: none; border: none; color: var(--cinza); font-family: var(--font-b); font-size: 0.95rem; font-weight: 600; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .nav-links button:hover { color: var(--branco); background: rgba(255,255,255,0.06); }
+        .nav-links button.active { color: var(--branco); background: rgba(59,130,246,0.15); }
 
-        header {
-            border-bottom: 1px solid var(--borda-padrao);
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        /* MAIN */
+        main { max-width: 1400px; margin: 0 auto; padding: 48px 24px; }
+        .secao { display: none; }
+        .secao.ativa { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
 
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 24px 32px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .titulo-secao { font-family: var(--font-d); font-size: 2.4rem; font-weight: 700; margin-bottom: 8px; }
+        .titulo-secao span { color: var(--azul); }
+        .sub-secao { color: var(--cinza); font-size: 1.1rem; margin-bottom: 48px; }
 
-        .logo {
-            font-family: var(--font-display);
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: var(--branco-suave);
-            text-decoration: none;
-            letter-spacing: -0.5px;
-            cursor: pointer;
-        }
+        /* GERAR */
+        .card-upload { background: var(--bg-painel); border: 2px solid var(--borda); border-radius: 16px; padding: 40px; transition: border-color 0.3s; }
+        .card-upload:hover { border-color: var(--azul); }
+        .card-titulo { font-family: var(--font-d); font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; }
 
-        .logo span { color: var(--azul-destaque); }
+        .voz-wrap { margin-bottom: 20px; }
+        .voz-label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem; color: var(--branco); }
+        .voz-select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--borda); background: var(--bg); color: var(--branco); font-size: 1rem; font-family: var(--font-b); cursor: pointer; outline: none; transition: border-color 0.2s; }
+        .voz-select:focus { border-color: var(--azul); }
 
-        .nav-links { display: flex; gap: 40px; }
+        .drop-zone { border: 2px dashed var(--azul-borda); background: rgba(15,23,42,0.3); border-radius: 14px; padding: 60px 20px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .drop-zone:hover, .drop-zone.over { border-color: var(--azul); background: rgba(59,130,246,0.05); }
+        .drop-icon { font-size: 2.5rem; margin-bottom: 16px; }
+        .drop-txt { color: var(--branco); font-size: 1.1rem; font-weight: 500; margin-bottom: 24px; }
+        .btn-sel { background: transparent; color: var(--branco); border: 2px solid var(--azul-borda); padding: 14px 28px; border-radius: 8px; font-family: var(--font-b); font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.3s; }
+        .btn-sel:hover { border-color: var(--azul); color: var(--azul); }
 
-        .nav-links button {
-            background: none;
-            border: none;
-            color: var(--cinza);
-            font-family: var(--font-body);
-            font-size: 1.1rem;
-            font-weight: 600;
-            padding-bottom: 6px;
-            position: relative;
-            opacity: 0.7;
-            cursor: pointer;
-            transition: color 0.4s ease, opacity 0.4s ease;
-        }
+        .status-arquivo { margin-top: 24px; font-size: 1rem; font-weight: 600; display: none; align-items: center; gap: 10px; }
+        .status-arquivo.vis { display: flex; }
+        .status-dot { width: 10px; height: 10px; background: var(--azul); border-radius: 50%; box-shadow: 0 0 10px var(--azul); }
 
-        .nav-links button::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 3px;
-            bottom: 0;
-            left: 0;
-            background-color: var(--azul-destaque);
-            transition: width 0.4s ease;
-        }
-
-        .nav-links button:hover, .nav-links button.active {
-            color: var(--branco-suave);
-            opacity: 1;
-        }
-
-        .nav-links button:hover::after, .nav-links button.active::after {
-            width: 100%;
-        }
-
-        main { max-width: 1400px; margin: 0 auto; padding: 60px 32px; }
-        
-        .secao-conteudo { display: none; }
-        .secao-conteudo.ativa { display: block; animation: fadeIn 0.5s ease; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        .greeting-section { margin-bottom: 60px; }
-        .greeting { font-family: var(--font-display); font-size: 3rem; font-weight: 700; margin-bottom: 12px; }
-        .greeting span { color: var(--azul-destaque); }
-        .subtitle { color: var(--cinza); font-size: 1.3rem; }
-
-        /* SEÇÃO GERAR */
-        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
-        .card-upload {
-            background-color: var(--bg-painel);
-            border: 2px solid var(--borda-padrao);
-            border-radius: 12px;
-            padding: 50px;
-            transition: border-color 0.4s ease;
-        }
-        .card-upload:hover { border-color: var(--azul-destaque); }
-        
-        .card-title { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; color: var(--branco-suave); margin-bottom: 24px; }
-
-        .drop-zone {
-            border: 2px dashed var(--azul-borda);
-            background-color: rgba(15, 23, 42, 0.3);
-            border-radius: 12px;
-            padding: 80px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.4s ease;
-        }
-        .drop-zone:hover, .drop-zone.dragover {
-            border-color: var(--azul-destaque);
-            background-color: rgba(59, 130, 246, 0.05);
-        }
-        .drop-zone-icon { font-size: 3rem; margin-bottom: 20px; color: var(--azul-destaque); }
-        .drop-zone-text { color: var(--branco-suave); font-size: 1.2rem; font-weight: 500; margin-bottom: 30px; }
-
-        .btn-outline {
-            background: transparent;
-            color: var(--branco-suave);
-            border: 2px solid var(--azul-borda);
-            padding: 16px 32px;
-            border-radius: 8px;
-            font-family: var(--font-body);
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            opacity: 0.9;
-            transition: all 0.4s ease;
-        }
-        .btn-outline:hover {
-            border-color: var(--azul-destaque);
-            color: var(--azul-destaque);
-            opacity: 1;
-        }
-
-        .file-status { margin-top: 30px; font-size: 1.1rem; font-weight: 600; color: var(--branco-suave); display: none; align-items: center; gap: 12px; }
-        .file-status.active { display: flex; }
-        .status-dot { width: 12px; height: 12px; background-color: var(--azul-destaque); border-radius: 50%; box-shadow: 0 0 12px var(--azul-destaque); }
+        .progresso-wrap { display: none; margin-top: 28px; }
+        .progresso-topo { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .progresso-label { color: var(--branco); font-weight: 600; font-size: 0.95rem; }
+        .progresso-pct { color: var(--azul); font-weight: 700; font-size: 0.95rem; }
+        .progresso-bar-bg { background: var(--azul-escuro); border-radius: 8px; height: 8px; overflow: hidden; border: 1px solid var(--azul-borda); }
+        .progresso-bar { background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 8px; }
+        .progresso-msg { color: var(--cinza); font-size: 0.9rem; margin-top: 10px; text-align: center; }
 
         /* BIBLIOTECA */
-        .grid-catalogo {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 24px;
-            margin-top: 40px;
-            align-items: start;
-        }
+        .grid-lib { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; align-items: start; }
+        .card-livro { background: var(--bg-painel); border: 2px solid var(--borda); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 16px; transition: border-color 0.3s, box-shadow 0.3s; overflow: hidden; }
+        .card-livro:hover { border-color: var(--azul); box-shadow: 0 8px 30px rgba(59,130,246,0.1); }
+        .card-livro.aberto { grid-column: 1 / -1; border-color: var(--azul); box-shadow: 0 8px 40px rgba(59,130,246,0.15); }
 
-        .card-livro {
-            background-color: var(--bg-painel);
-            border: 2px solid var(--borda-padrao);
-            border-radius: 16px;
-            padding: 28px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            transition: border-color 0.4s ease, box-shadow 0.4s ease;
-            overflow: hidden;
-        }
-        .card-livro:hover { border-color: var(--azul-destaque); box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1); }
+        .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+        .card-info { flex: 1; min-width: 0; }
+        .badge-pronto { display: inline-flex; align-items: center; gap: 6px; background: #111; border: 1px solid var(--borda); padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 12px; }
+        .dot-verde { width: 7px; height: 7px; border-radius: 50%; background: #10b981; box-shadow: 0 0 6px rgba(16,185,129,0.5); }
+        .livro-nome { font-family: var(--font-d); font-size: 1.05rem; font-weight: 700; line-height: 1.4; word-break: break-word; margin-bottom: 4px; }
+        .livro-tam { color: var(--cinza); font-size: 0.85rem; }
 
-        /* Card ativo expande para ocupar todas as colunas da linha */
-        .card-livro.player-aberto {
-            grid-column: 1 / -1;
-            border-color: var(--azul-destaque);
-            box-shadow: 0 8px 40px rgba(59, 130, 246, 0.15);
-        }
+        .btn-dl { flex-shrink: 0; background: transparent; border: 1.5px solid var(--azul-borda); color: var(--cinza); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; text-decoration: none; transition: all 0.2s; cursor: pointer; }
+        .btn-dl:hover { border-color: var(--azul); color: var(--azul); background: rgba(59,130,246,0.08); }
 
-        /* Layout interno do player quando expandido */
-        .card-livro.player-aberto .audio-player {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 14px;
-        }
+        .btn-ouvir { background: var(--azul); color: #fff; border: none; padding: 14px; border-radius: 10px; font-family: var(--font-b); font-weight: 700; font-size: 1rem; cursor: pointer; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; transition: background 0.2s, transform 0.15s; }
+        .btn-ouvir:hover { background: #2563eb; }
+        .btn-ouvir:active { transform: scale(0.98); }
 
-        .card-livro.player-aberto .player-controles-e-bottom {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
+        /* PLAYER */
+        .player { background: linear-gradient(135deg, #0f172a, #0a0f1e); border: 1px solid var(--azul-borda); border-radius: 14px; padding: 20px; display: none; flex-direction: column; gap: 14px; }
+        .player.vis { display: flex; }
 
-        .card-livro.player-aberto .player-controles {
-            flex-wrap: nowrap;
-            justify-content: flex-start;
-        }
+        .player-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .player-nome { font-size: 0.88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+        .player-tempo { font-size: 0.82rem; color: var(--cinza); white-space: nowrap; font-variant-numeric: tabular-nums; }
 
-        .card-livro.player-aberto .player-bottom {
-            flex-wrap: nowrap;
-            justify-content: flex-end;
-        }
+        .prog-wrap { position: relative; height: 6px; background: rgba(255,255,255,0.08); border-radius: 4px; cursor: pointer; transition: height 0.15s; }
+        .prog-wrap:hover { height: 9px; }
+        .prog-fill { height: 100%; background: linear-gradient(90deg, var(--azul), #60a5fa); border-radius: 4px; width: 0%; pointer-events: none; }
+        .prog-thumb { position: absolute; top: 50%; transform: translate(-50%,-50%); width: 13px; height: 13px; background: #fff; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity 0.15s; left: 0%; }
+        .prog-wrap:hover .prog-thumb { opacity: 1; }
 
-        .card-livro-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-        }
+        .ctrls { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+        .btn-c { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--cinza); border-radius: 8px; padding: 8px 11px; cursor: pointer; font-size: 0.82rem; font-family: var(--font-b); font-weight: 600; display: flex; align-items: center; gap: 5px; transition: all 0.15s; white-space: nowrap; }
+        .btn-c:hover { background: rgba(59,130,246,0.15); border-color: var(--azul-borda); color: var(--branco); }
+        .btn-c:active { transform: scale(0.95); }
+        .btn-c.play { background: var(--azul); border-color: var(--azul); color: #fff; padding: 10px 18px; font-size: 0.95rem; border-radius: 10px; }
+        .btn-c.play:hover { background: #2563eb; border-color: #2563eb; }
 
-        .card-livro-info { flex: 1; min-width: 0; }
+        .player-bottom { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .vel-grupo { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+        .vel-label { font-size: 0.78rem; color: var(--cinza); font-weight: 600; margin-right: 2px; }
+        .btn-vel { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--cinza); border-radius: 6px; padding: 4px 9px; font-size: 0.78rem; font-family: var(--font-b); font-weight: 700; cursor: pointer; transition: all 0.15s; }
+        .btn-vel:hover { background: rgba(59,130,246,0.15); border-color: var(--azul-borda); color: var(--branco); }
+        .btn-vel.on { background: var(--azul); border-color: var(--azul); color: #fff; }
 
-        .indicador-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: #111;
-            border: 1px solid var(--borda-padrao);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 14px;
-            white-space: nowrap;
-        }
-
-        .dot { width: 8px; height: 8px; border-radius: 50%; }
-        .dot.concluido { background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
-        .dot.processando { background-color: var(--azul-destaque); animation: pulse 1.5s infinite; }
-
-        .livro-titulo {
-            font-family: var(--font-display);
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: var(--branco-suave);
-            line-height: 1.4;
-            word-break: break-word;
-            margin-bottom: 6px;
-        }
-        .livro-data { color: var(--cinza); font-size: 0.9rem; }
-
-        /* BOTÃO DE DOWNLOAD */
-        .btn-download {
-            flex-shrink: 0;
-            background: transparent;
-            border: 1.5px solid var(--azul-borda);
-            color: var(--cinza);
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        .btn-download:hover {
-            border-color: var(--azul-destaque);
-            color: var(--azul-destaque);
-            background: rgba(59, 130, 246, 0.08);
-        }
-
-        /* BOTÃO PLAY PRINCIPAL */
-        .btn-play-enorme {
-            background-color: var(--azul-destaque);
-            color: #ffffff;
-            border: none;
-            padding: 16px;
-            border-radius: 10px;
-            font-family: var(--font-body);
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-        .btn-play-enorme:hover { background-color: #2563eb; transform: scale(1.01); }
-        .btn-play-enorme:active { transform: scale(0.98); }
-
-        /* ====================================================
-           PLAYER DE ÁUDIO — DESIGN COMPLETO
-           ==================================================== */
-        .audio-player {
-            background: linear-gradient(135deg, #0f172a 0%, #0a0f1e 100%);
-            border: 1px solid var(--azul-borda);
-            border-radius: 14px;
-            padding: 22px;
-            display: none;
-            flex-direction: column;
-            gap: 18px;
-            transition: all 0.4s ease;
-        }
-        .audio-player.ativo { display: flex; }
-
-        /* Linha 1: título + tempo */
-        .player-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
-        .player-titulo-audio {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--branco-suave);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex: 1;
-        }
-        .player-tempos {
-            font-size: 0.85rem;
-            color: var(--cinza);
-            white-space: nowrap;
-            font-variant-numeric: tabular-nums;
-        }
-
-        /* Barra de progresso */
-        .progress-wrap {
-            position: relative;
-            height: 6px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: height 0.2s ease;
-        }
-        .progress-wrap:hover { height: 9px; }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--azul-destaque), #60a5fa);
-            border-radius: 4px;
-            width: 0%;
-            pointer-events: none;
-            transition: width 0.1s linear;
-        }
-        .progress-thumb {
-            position: absolute;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 14px;
-            height: 14px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 6px rgba(59,130,246,0.6);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            left: 0%;
-        }
-        .progress-wrap:hover .progress-thumb { opacity: 1; }
-
-        /* Controles centrais */
-        .player-controles {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .btn-ctrl {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            color: var(--cinza);
-            border-radius: 8px;
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-family: var(--font-body);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-        .btn-ctrl:hover {
-            background: rgba(59,130,246,0.15);
-            border-color: var(--azul-borda);
-            color: var(--branco-suave);
-        }
-        .btn-ctrl:active { transform: scale(0.95); }
-
-        .btn-ctrl-play {
-            background-color: var(--azul-destaque);
-            border-color: var(--azul-destaque);
-            color: #fff;
-            padding: 10px 20px;
-            font-size: 1rem;
-            border-radius: 10px;
-        }
-        .btn-ctrl-play:hover { background-color: #2563eb; border-color: #2563eb; color: #fff; }
-
-        /* Linha inferior: velocidade + volume */
-        .player-bottom {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .velocidade-grupo {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .velocidade-label {
-            font-size: 0.8rem;
-            color: var(--cinza);
-            font-weight: 600;
-        }
-        .btn-vel {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--cinza);
-            border-radius: 6px;
-            padding: 5px 10px;
-            font-size: 0.8rem;
-            font-family: var(--font-body);
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .btn-vel:hover { background: rgba(59,130,246,0.15); border-color: var(--azul-borda); color: var(--branco-suave); }
-        .btn-vel.ativo { background: var(--azul-destaque); border-color: var(--azul-destaque); color: #fff; }
-
-        .volume-grupo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .volume-icone { font-size: 1rem; color: var(--cinza); }
-        .volume-slider {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 80px;
-            height: 4px;
-            border-radius: 2px;
-            background: rgba(255,255,255,0.15);
-            outline: none;
-            cursor: pointer;
-        }
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--azul-destaque);
-            cursor: pointer;
-        }
-        .volume-slider::-moz-range-thumb {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--azul-destaque);
-            cursor: pointer;
-            border: none;
-        }
+        .vol-grupo { display: flex; align-items: center; gap: 8px; }
+        .vol-icon { font-size: 1rem; color: var(--cinza); }
+        input[type=range].vol { -webkit-appearance: none; appearance: none; width: 80px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.15); outline: none; cursor: pointer; }
+        input[type=range].vol::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--azul); cursor: pointer; }
+        input[type=range].vol::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--azul); cursor: pointer; border: none; }
 
         /* MODAL */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(5px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-bg.vis { display: flex; }
+        .modal-box { background: var(--bg-painel); border: 2px solid var(--azul-borda); border-radius: 14px; padding: 36px; width: 100%; max-width: 480px; text-align: center; position: relative; }
+        .modal-titulo { font-family: var(--font-d); font-size: 1.5rem; margin-bottom: 12px; }
+        .modal-desc { color: var(--cinza); font-size: 1rem; margin-bottom: 20px; }
+        .modal-input { width: 100%; background: var(--bg); border: 1px solid var(--borda); color: var(--branco); padding: 14px; border-radius: 8px; font-size: 1rem; font-family: var(--font-b); margin-bottom: 20px; outline: none; transition: border-color 0.2s; }
+        .modal-input:focus { border-color: var(--azul); }
+        .btn-modal { background: var(--azul); color: #fff; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+        .btn-modal:hover { background: #2563eb; }
+        .btn-fechar { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--cinza); font-size: 1.4rem; cursor: pointer; line-height: 1; }
+        .btn-fechar:hover { color: var(--branco); }
+
+        /* RESPONSIVO */
+        @media (max-width: 768px) {
+            .nav-wrap { padding: 14px 16px; }
+            .nav-links button { font-size: 0.88rem; padding: 7px 12px; }
+            .logo { font-size: 1.2rem; }
+            main { padding: 32px 16px; }
+            .titulo-secao { font-size: 1.8rem; }
+            .sub-secao { font-size: 1rem; margin-bottom: 32px; }
+            .card-upload { padding: 24px 16px; }
+            .card-titulo { font-size: 1.2rem; }
+            .drop-zone { padding: 40px 16px; }
+            .drop-txt { font-size: 0.95rem; }
+            .grid-lib { grid-template-columns: 1fr; gap: 14px; }
+            .card-livro { padding: 18px 14px; gap: 12px; }
+            .livro-nome { font-size: 0.95rem; }
+            .ctrls { gap: 5px; }
+            .btn-c { padding: 9px 9px; font-size: 0.78rem; }
+            .player-bottom { flex-direction: column; align-items: center; }
+            .vel-grupo { justify-content: center; }
+            .player-top { flex-direction: column; align-items: flex-start; gap: 2px; }
+            .prog-wrap { height: 8px; }
+            .prog-thumb { opacity: 1 !important; }
+            input[type=range].vol { width: 130px; }
+            .modal-box { margin: 16px; padding: 28px 18px; }
         }
-        .modal-overlay.show { display: flex; opacity: 1; }
-        .modal-content {
-            background-color: var(--bg-painel);
-            border: 2px solid var(--azul-borda);
-            border-radius: 12px;
-            padding: 40px;
-            width: 100%;
-            max-width: 500px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
+        @media (max-width: 400px) {
+            .nav-links button { font-size: 0.8rem; padding: 6px 10px; }
+            .titulo-secao { font-size: 1.5rem; }
+            .btn-vel { padding: 4px 7px; font-size: 0.72rem; }
         }
-        .modal-overlay.show .modal-content { transform: scale(1); }
-        .modal-title { font-family: var(--font-display); font-size: 1.6rem; color: var(--branco-suave); margin-bottom: 16px; }
-        .modal-desc { color: var(--cinza); font-size: 1.1rem; margin-bottom: 24px; }
-        .input-api {
-            width: 100%;
-            background-color: var(--bg-principal);
-            border: 1px solid var(--borda-padrao);
-            color: var(--branco-suave);
-            padding: 16px;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-family: var(--font-body);
-            margin-bottom: 24px;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-        .input-api:focus { border-color: var(--azul-destaque); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
-        .btn-salvar {
-            background-color: var(--azul-destaque);
-            color: white;
-            border: none;
-            padding: 16px;
-            width: 100%;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-bottom: 20px;
-        }
-        .btn-salvar:hover { background-color: #2563eb; }
-        .btn-fechar {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            color: var(--cinza);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        .btn-fechar:hover { color: white; }
     </style>
 </head>
 <body>
 
-    <div class="modal-overlay" id="modalApi">
-        <div class="modal-content">
-            <button class="btn-fechar" onclick="fecharModal()">×</button>
-            <h2 class="modal-title">Configuração Necessária</h2>
-            <p class="modal-desc">Para gerar seu primeiro audiobook, precisamos da sua chave API do Google Gemini.</p>
-            <input type="password" id="inputApiKey" class="input-api" placeholder="Cole sua Chave API aqui...">
-            <button class="btn-salvar" onclick="salvarApiKey()">Salvar Chave e Continuar</button>
+<div class="modal-bg" id="modalApi">
+    <div class="modal-box">
+        <button class="btn-fechar" onclick="fecharModal()">×</button>
+        <h2 class="modal-titulo">Configuração Necessária</h2>
+        <p class="modal-desc">Para gerar seu primeiro audiobook, insira sua chave API do Google Gemini.</p>
+        <input type="password" id="inputApiKey" class="modal-input" placeholder="Cole sua Chave API aqui...">
+        <button class="btn-modal" onclick="salvarApiKey()">Salvar Chave e Continuar</button>
+    </div>
+</div>
+
+<header>
+    <div class="nav-wrap">
+        <a class="logo" onclick="navegar('gerar')">Audio<span>.Doc</span></a>
+        <nav class="nav-links">
+            <button id="nav-gerar" class="active" onclick="navegar('gerar')">Gerar Audiobook</button>
+            <button id="nav-biblioteca" onclick="navegar('biblioteca')">Biblioteca</button>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <!-- GERAR -->
+    <div id="secao-gerar" class="secao ativa">
+        <h1 class="titulo-secao">Olá, <span>bem vindo</span></h1>
+        <p class="sub-secao">ao seu ambiente de transcrição acadêmica.</p>
+
+        <div class="card-upload">
+            <h2 class="card-titulo">Nova Transcrição</h2>
+
+            <div class="voz-wrap">
+                <label class="voz-label" for="selectVoz">Escolha a voz:</label>
+                <select id="selectVoz" class="voz-select"></select>
+            </div>
+
+            <div class="drop-zone" id="dropZone" onclick="clicarUpload(event)">
+                <div class="drop-icon">📄</div>
+                <p class="drop-txt">Arraste seus documentos (.txt, .pdf, .docx, .pptx) aqui<br>ou clique para procurar</p>
+                <input type="file" id="fileInput" accept=".txt,.pdf,.docx,.pptx" style="display:none">
+                <button class="btn-sel">Selecionar Arquivo</button>
+            </div>
+
+            <div class="status-arquivo" id="statusArquivo">
+                <div class="status-dot"></div>
+                <span id="nomeArquivo">Nenhum arquivo</span>
+            </div>
+
+            <div class="progresso-wrap" id="progressoWrap">
+                <div class="progresso-topo">
+                    <span class="progresso-label" id="progressoLabel">Processando...</span>
+                    <span class="progresso-pct" id="progressoPct">0%</span>
+                </div>
+                <div class="progresso-bar-bg">
+                    <div class="progresso-bar" id="progressoBar"></div>
+                </div>
+                <p class="progresso-msg" id="progressoMsg"></p>
+            </div>
         </div>
     </div>
 
-    <header>
-        <div class="nav-container">
-            <a class="logo" onclick="navegar('gerar')">Audio<span>.Doc</span></a>
-            <nav class="nav-links">
-                <button id="nav-gerar" class="active" onclick="navegar('gerar')">Gerar Audiobook</button>
-                <button id="nav-biblioteca" onclick="navegar('biblioteca')">Biblioteca</button>
-            </nav>
-        </div>
-    </header>
+    <!-- BIBLIOTECA -->
+    <div id="secao-biblioteca" class="secao">
+        <h1 class="titulo-secao">Sua <span>Biblioteca</span></h1>
+        <p class="sub-secao">Arquivos processados e prontos para reprodução.</p>
+        <div class="grid-lib" id="gridLib"></div>
+    </div>
+</main>
 
-    <main>
-        <!-- SEÇÃO GERAR -->
-        <div id="secao-gerar" class="secao-conteudo ativa">
-            <section class="greeting-section">
-                <h1 class="greeting">Olá, <span>bem vindo</span></h1>
-                <p class="subtitle">ao seu ambiente de transcrição acadêmica.</p>
-            </section>
+<script>
+    const API = 'https://audio-doc-b12i.onrender.com/api';
+    const players = {};
 
-            <section class="dashboard-grid">
-                <div class="card-upload">
-                    <h2 class="card-title">Nova Transcrição</h2>
-                    
-                    <div style="margin-bottom: 24px;">
-                        <label for="selectVoz" style="display: block; margin-bottom: 8px; color: var(--branco-suave); font-weight: 600;">Escolha a voz:</label>
-                        <select id="selectVoz" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--borda-padrao); background-color: var(--bg-principal); color: var(--branco-suave); font-size: 1rem; cursor: pointer;">
-                            <!-- Opções carregadas dinamicamente pelo JS -->
-                        </select>
-                    </div>
-                    
-                    <div class="drop-zone" id="dropZone" onclick="verificarUpload(event)">
-                        <div class="drop-zone-icon">📄</div>
-                        <p class="drop-zone-text">Arraste seus documentos (.txt, .pdf, .docx, .pptx) aqui ou clique para procurar</p>
-                        <input type="file" id="fileInput" accept=".txt,.pdf,.docx,.pptx" style="display: none;">
-                        <button class="btn-outline">Selecionar Arquivo</button>
-                    </div>
+    // NAVEGAÇÃO
+    function navegar(dest) {
+        ['gerar','biblioteca'].forEach(s => {
+            const sec = document.getElementById('secao-' + s);
+            const btn = document.getElementById('nav-' + s);
+            if (sec) sec.classList.remove('ativa');
+            if (btn) btn.classList.remove('active');
+        });
+        const sec = document.getElementById('secao-' + dest);
+        const btn = document.getElementById('nav-' + dest);
+        if (sec) sec.classList.add('ativa');
+        if (btn) btn.classList.add('active');
+        if (dest === 'biblioteca') carregarBiblioteca();
+    }
 
-                    <div class="file-status" id="fileStatus">
-                        <div class="status-dot"></div>
-                        <span id="fileName">Nenhum arquivo selecionado</span>
-                    </div>
+    // VOZES
+    const VOZES = {
+        francisca: 'Francisca — Feminino · Padrão',
+        antonio:   'Antonio — Masculino',
+        thalita:   'Thalita — Feminino · Casual',
+        macerio:   'Macerio — Masculino · Casual',
+    };
+    let vozAtual = 'francisca';
 
-                    <div id="progressContainer" style="display: none; margin-top: 30px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                            <span style="color: var(--branco-suave); font-weight: 600;" id="progressLabel">Processando...</span>
-                            <span style="color: var(--azul-destaque); font-weight: 700;" id="progressPercent">0%</span>
-                        </div>
-                        <div style="background-color: var(--azul-escuro); border-radius: 8px; height: 8px; overflow: hidden; border: 1px solid var(--azul-borda);">
-                            <div id="progressBar" style="background: linear-gradient(90deg, #3b82f6, #60a5fa); height: 100%; width: 0%; transition: width 0.3s ease; border-radius: 8px;"></div>
-                        </div>
-                        <p id="progressMessage" style="color: var(--cinza); font-size: 0.95rem; margin-top: 12px; text-align: center;"></p>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- SEÇÃO BIBLIOTECA -->
-        <div id="secao-biblioteca" class="secao-conteudo">
-            <section class="greeting-section">
-                <h1 class="greeting">Sua <span>Biblioteca</span></h1>
-                <p class="subtitle">Arquivos processados e prontos para reprodução.</p>
-            </section>
-            <div class="grid-catalogo" id="gridCatalogo">
-                <!-- Cards gerados dinamicamente -->
-            </div>
-        </div></main>
-
-    <script>
-        const API_URL = 'https://audio-doc-b12i.onrender.com/api';
-
-        // Estado global dos players
-        const playersState = {};
-
-        // ==========================================
-        // NAVEGAÇÃO
-        // ==========================================
-        function navegar(destino) {
-            ['gerar', 'biblioteca'].forEach(s => {
-                const secao = document.getElementById(`secao-${s}`);
-                const nav = document.getElementById(`nav-${s}`);
-                if (secao) secao.classList.remove('ativa');
-                if (nav) nav.classList.remove('active');
-            });
-            const secaoAtiva = document.getElementById(`secao-${destino}`);
-            const navAtivo = document.getElementById(`nav-${destino}`);
-            if (secaoAtiva) secaoAtiva.classList.add('ativa');
-            if (navAtivo) navAtivo.classList.add('active');
-            if (destino === 'biblioteca') carregarBiblioteca();
+    function popularVozes(mapa) {
+        const sel = document.getElementById('selectVoz');
+        if (!sel) return;
+        sel.innerHTML = '';
+        for (const [k, v] of Object.entries(mapa)) {
+            const o = document.createElement('option');
+            o.value = k;
+            o.textContent = typeof v === 'object' ? v.nome + ' — ' + v.descricao : v;
+            if (k === vozAtual) o.selected = true;
+            sel.appendChild(o);
         }
+    }
 
-        // ==========================================
-        // VOZES
-        // ==========================================
-        // Vozes disponíveis — aliases do edge-tts PT-BR usados pelo backend
-        const VOZES_DISPONIVEIS = {
-            francisca: { nome: "Francisca",  descricao: "Feminino · Padrão"  },
-            antonio:   { nome: "Antonio",    descricao: "Masculino"           },
+    async function carregarVozes() {
+        popularVozes(VOZES);
+        try {
+            const ctrl = new AbortController();
+            const t = setTimeout(() => ctrl.abort(), 4000);
+            const r = await fetch(API + '/info', { signal: ctrl.signal });
+            clearTimeout(t);
+            if (!r.ok) return;
+            const d = await r.json();
+            if (d.vozes && Object.keys(d.vozes).length) {
+                const m = {};
+                for (const [k, v] of Object.entries(d.vozes)) {
+                    m[k] = typeof v === 'string'
+                        ? k.charAt(0).toUpperCase() + k.slice(1) + ' — ' + v
+                        : v;
+                }
+                popularVozes(m);
+            }
+        } catch(e) { /* usa vozes locais */ }
+    }
+
+    // MODAL
+    function fecharModal() { document.getElementById('modalApi').classList.remove('vis'); }
+
+    function salvarApiKey() {
+        const v = document.getElementById('inputApiKey').value.trim();
+        if (!v) { alert('Insira uma chave válida.'); return; }
+        localStorage.setItem('gemini_api_key', v);
+        fecharModal();
+        document.getElementById('fileInput').click();
+    }
+
+    // UPLOAD
+    const fileInput  = document.getElementById('fileInput');
+    const dropZone   = document.getElementById('dropZone');
+    const statusEl   = document.getElementById('statusArquivo');
+    const nomeEl     = document.getElementById('nomeArquivo');
+
+    function clicarUpload(e) { e.stopPropagation(); fileInput.click(); }
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files && fileInput.files.length) enviarArquivo(fileInput.files[0]);
+    });
+
+    ['dragenter','dragover','dragleave','drop'].forEach(ev =>
+        dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
+    ['dragenter','dragover'].forEach(ev =>
+        dropZone.addEventListener(ev, () => dropZone.classList.add('over')));
+    ['dragleave','drop'].forEach(ev =>
+        dropZone.addEventListener(ev, () => dropZone.classList.remove('over')));
+    dropZone.addEventListener('drop', e => {
+        const f = e.dataTransfer.files;
+        if (f && f.length) enviarArquivo(f[0]);
+    });
+
+    async function enviarArquivo(arquivo) {
+        nomeEl.textContent = '⏳ Enviando: ' + arquivo.name;
+        statusEl.classList.add('vis');
+        dropZone.style.borderColor = 'var(--azul)';
+
+        try {
+            const fd = new FormData();
+            fd.append('file', arquivo);
+            fd.append('voz', vozAtual);
+            fd.append('nome_saida', arquivo.name.split('.')[0] + '_audio');
+
+            const r = await fetch(API + '/converter', { method: 'POST', body: fd });
+            const d = await r.json();
+            if (!r.ok) throw new Error(d.erro || 'Erro ao converter');
+            monitorarProgresso(d.id_conversao, d.arquivo_saida);
+        } catch(e) {
+            nomeEl.textContent = '❌ Erro: ' + e.message;
+            fileInput.value = '';
+        }
+    }
+
+    function monitorarProgresso(id, nomeSaida) {
+        const wrap  = document.getElementById('progressoWrap');
+        const bar   = document.getElementById('progressoBar');
+        const pct   = document.getElementById('progressoPct');
+        const label = document.getElementById('progressoLabel');
+        const msg   = document.getElementById('progressoMsg');
+        wrap.style.display = 'block';
+
+        const es = new EventSource(API + '/progresso/' + id);
+        es.onmessage = ev => {
+            try {
+                const d = JSON.parse(ev.data);
+                const p = Math.round(d.progresso || 0);
+                bar.style.width = p + '%';
+                pct.textContent = p + '%';
+                label.textContent = d.etapa || 'Processando...';
+                msg.textContent = d.mensagem || '';
+                if (d.status === 'concluido') {
+                    es.close();
+                    nomeEl.textContent = '✅ Concluído: ' + nomeSaida;
+                    fileInput.value = '';
+                    setTimeout(() => { wrap.style.display = 'none'; navegar('biblioteca'); }, 2000);
+                } else if (d.status === 'erro') {
+                    es.close();
+                    nomeEl.textContent = '❌ Erro: ' + d.mensagem;
+                    fileInput.value = '';
+                }
+            } catch(e) {}
         };
+        es.onerror = () => { es.close(); wrap.style.display = 'none'; };
+    }
 
-        let vozSelecionada = 'francisca';
-
-        function popularSelectVozes(mapaVozes) {
-            const selectVoz = document.getElementById('selectVoz');
-            if (!selectVoz) return;
-            selectVoz.innerHTML = '';
-            for (const [alias, info] of Object.entries(mapaVozes)) {
-                const option = document.createElement('option');
-                option.value = alias;
-                // Usa o campo "nome" se vier do backend, senão usa o objeto local
-                option.textContent = typeof info === 'object' ? `${info.nome} — ${info.descricao}` : info;
-                if (alias === vozSelecionada) option.selected = true;
-                selectVoz.appendChild(option);
-            }
-        }
-
-        async function carregarVozes() {
-            // Popula imediatamente com as vozes locais (fallback garantido)
-            popularSelectVozes(VOZES_DISPONIVEIS);
-
-            // Tenta buscar vozes do backend para sobrescrever se houver mais
-            try {
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 3000);
-                const response = await fetch(`${API_URL}/info`, { signal: controller.signal });
-                clearTimeout(timeout);
-
-                if (!response.ok) throw new Error('Backend não retornou vozes');
-                const dados = await response.json();
-
-                // Backend retorna { vozes: { alias: nome_completo } }
-                // Converte para o formato { alias: { nome, descricao } }
-                if (dados.vozes && Object.keys(dados.vozes).length > 0) {
-                    const mapaConvertido = {};
-                    for (const [alias, nomeOuObj] of Object.entries(dados.vozes)) {
-                        if (typeof nomeOuObj === 'string') {
-                            // Capitaliza o alias como nome de exibição
-                            mapaConvertido[alias] = {
-                                nome: alias.charAt(0).toUpperCase() + alias.slice(1),
-                                descricao: nomeOuObj // nome técnico como subtítulo
-                            };
-                        } else {
-                            mapaConvertido[alias] = nomeOuObj;
-                        }
-                    }
-                    popularSelectVozes(mapaConvertido);
-                    console.log('Vozes carregadas do backend:', Object.keys(mapaConvertido));
-                }
-            } catch (error) {
-                // Silencioso — o select já está populado com as vozes locais
-                console.warn('Usando vozes locais (backend indisponível):', error.message);
-            }
-        }
-
-        // ==========================================
-        // MODAL
-        // ==========================================
-        function abrirModal() { document.getElementById('modalApi').classList.add('show'); }
-        function fecharModal() { document.getElementById('modalApi').classList.remove('show'); }
-        function salvarApiKey() {
-            const input = document.getElementById('inputApiKey').value;
-            if (input.trim() === '') { alert('Por favor, insira uma chave válida.'); return; }
-            localStorage.setItem('gemini_api_key', input.trim());
-            alert('Chave salva com sucesso! Agora você pode enviar seus arquivos.');
-            fecharModal();
-            document.getElementById('fileInput').click();
-        }
-
-        // ==========================================
-        // UPLOAD
-        // ==========================================
-        const fileInput = document.getElementById('fileInput');
-        const dropZone = document.getElementById('dropZone');
-        const fileStatus = document.getElementById('fileStatus');
-        const fileNameDisplay = document.getElementById('fileName');
-
-        function verificarUpload(e) { e.stopPropagation(); fileInput.click(); }
-
-        fileInput.addEventListener('change', processarArquivoSelecionado);
-
-        function processarArquivoSelecionado() {
-            if (fileInput.files && fileInput.files.length > 0) {
-                const arquivo = fileInput.files[0];
-                fileNameDisplay.textContent = `📤 Enviando: ${arquivo.name}`;
-                fileStatus.classList.add('active');
-                dropZone.style.borderColor = 'var(--azul-destaque)';
-                enviarArquivoParaAPI(arquivo);
-            }
-        }
-
-        async function enviarArquivoParaAPI(arquivo) {
-            try {
-                const formData = new FormData();
-                formData.append('file', arquivo);
-                formData.append('voz', vozSelecionada);
-                formData.append('nome_saida', arquivo.name.split('.')[0] + '_audio');
-                fileNameDisplay.textContent = `⏳ Enviando: ${arquivo.name}`;
-
-                const response = await fetch(`${API_URL}/converter`, { method: 'POST', body: formData });
-                const resultado = await response.json();
-                if (!response.ok) throw new Error(resultado.erro || 'Erro ao converter arquivo');
-                monitorarProgresso(resultado.id_conversao, resultado.arquivo_saida);
-            } catch (error) {
-                console.error('Erro:', error);
-                fileNameDisplay.textContent = `❌ Erro: ${error.message}`;
-                document.getElementById('progressContainer').style.display = 'none';
-                fileInput.value = '';
-            }
-        }
-
-        function monitorarProgresso(idConversao, nomeArquivo) {
-            const progressContainer = document.getElementById('progressContainer');
-            const progressBar = document.getElementById('progressBar');
-            const progressPercent = document.getElementById('progressPercent');
-            const progressLabel = document.getElementById('progressLabel');
-            const progressMessage = document.getElementById('progressMessage');
-            progressContainer.style.display = 'block';
-
-            const eventSource = new EventSource(`${API_URL}/progresso/${idConversao}`);
-            eventSource.onmessage = (event) => {
-                try {
-                    const dados = JSON.parse(event.data);
-                    const progresso = Math.round(dados.progresso || 0);
-                    progressBar.style.width = progresso + '%';
-                    progressPercent.textContent = progresso + '%';
-                    progressLabel.textContent = dados.etapa || 'Processando...';
-                    progressMessage.textContent = dados.mensagem || '';
-                    if (dados.status === 'concluido') {
-                        eventSource.close();
-                        fileNameDisplay.textContent = `✅ Concluído: ${nomeArquivo}`;
-                        fileInput.value = '';
-                        setTimeout(() => { progressContainer.style.display = 'none'; navegar('biblioteca'); }, 2000);
-                    } else if (dados.status === 'erro') {
-                        eventSource.close();
-                        fileNameDisplay.textContent = `❌ Erro: ${dados.mensagem}`;
-                        fileInput.value = '';
-                    }
-                } catch (err) { console.error('Erro ao processar progresso:', err); }
-            };
-            eventSource.onerror = () => { eventSource.close(); progressContainer.style.display = 'none'; };
-        }
-
-        // DRAG AND DROP
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }, false));
-        ['dragenter', 'dragover'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.add('dragover'), false));
-        ['dragleave', 'drop'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('dragover'), false));
-        dropZone.addEventListener('drop', (e) => {
-            const files = e.dataTransfer.files;
-            if (files && files.length > 0) { fileInput.files = files; processarArquivoSelecionado(); }
-        }, false);
-
-        // ==========================================
-        // BIBLIOTECA
-        // ==========================================
-        async function carregarBiblioteca() {
-            const grid = document.getElementById('gridCatalogo');
-            grid.innerHTML = '<p style="color: var(--cinza); text-align: center; padding: 40px; grid-column: 1/-1;">Carregando...</p>';
-
-            try {
-                const response = await fetch(`${API_URL}/arquivos`);
-                const dados = await response.json();
-                grid.innerHTML = '';
-
-                if (dados.arquivos.length === 0) {
-                    grid.innerHTML = '<p style="color: var(--cinza); font-size: 1.2rem; grid-column: 1/-1; text-align: center; padding: 60px 0;">Nenhum áudio gerado ainda. Comece a criar! 🎧</p>';
-                    return;
-                }
-
-                dados.arquivos.forEach(arquivo => {
-                    const card = criarCardLivro(arquivo);
-                    grid.appendChild(card);
-                });
-
-            } catch (error) {
-                grid.innerHTML = `<p style="color: #f87171; text-align: center; grid-column: 1/-1;">Erro ao carregar arquivos: ${error.message}</p>`;
-            }
-        }
-
-        function criarCardLivro(arquivo) {
-            const id = 'player_' + arquivo.nome.replace(/[^a-z0-9]/gi, '_');
-            const urlDownload = `${API_URL}/download/${arquivo.nome}`;
-
-            const card = document.createElement('div');
-            card.className = 'card-livro';
-            card.innerHTML = `
-                <div class="card-livro-header">
-                    <div class="card-livro-info">
-                        <div class="indicador-status"><div class="dot concluido"></div> Pronto</div>
-                        <h3 class="livro-titulo">${arquivo.nome}</h3>
-                        <p class="livro-data">Tamanho: ${arquivo.tamanho}</p>
-                    </div>
-                    <a href="${urlDownload}" download="${arquivo.nome}" class="btn-download" title="Baixar áudio">
-                        ⬇
-                    </a>
-                </div>
-
-                <button class="btn-play-enorme" onclick="togglePlayer('${id}', '${arquivo.nome}', this)">
-                    ▶ OUVIR AGORA
-                </button>
-
-                <div class="audio-player" id="${id}">
-                    <div class="player-top">
-                        <span class="player-titulo-audio">${arquivo.nome}</span>
-                        <span class="player-tempos">
-                            <span id="${id}_atual">0:00</span> / <span id="${id}_total">0:00</span>
-                        </span>
-                    </div>
-
-                    <div class="progress-wrap" id="${id}_wrap" onclick="seekAudio('${id}', event)">
-                        <div class="progress-fill" id="${id}_fill"></div>
-                        <div class="progress-thumb" id="${id}_thumb"></div>
-                    </div>
-
-                    <div class="player-controles-e-bottom">
-                        <div class="player-controles">
-                            <button class="btn-ctrl" onclick="retroceder('${id}', 15)" title="Retroceder 15s">⏪ 15s</button>
-                            <button class="btn-ctrl" onclick="retroceder('${id}', 5)" title="Retroceder 5s">⏮ 5s</button>
-                            <button class="btn-ctrl btn-ctrl-play" id="${id}_playbtn" onclick="togglePlay('${id}')">⏸ Pausar</button>
-                            <button class="btn-ctrl" onclick="avancar('${id}', 5)" title="Avançar 5s">5s ⏭</button>
-                            <button class="btn-ctrl" onclick="avancar('${id}', 15)" title="Avançar 15s">15s ⏩</button>
-                        </div>
-
-                        <div class="player-bottom">
-                            <div class="velocidade-grupo">
-                                <span class="velocidade-label">Velocidade:</span>
-                                ${[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map(v =>
-                                    `<button class="btn-vel${v === 1 ? ' ativo' : ''}" onclick="definirVelocidade('${id}', ${v}, this)">${v}x</button>`
-                                ).join('')}
-                            </div>
-                            <div class="volume-grupo">
-                                <span class="volume-icone">🔊</span>
-                                <input type="range" class="volume-slider" min="0" max="1" step="0.05" value="1"
-                                       oninput="ajustarVolume('${id}', this.value)">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            return card;
-        }
-
-        // ==========================================
-        // PLAYER — FUNÇÕES
-        // ==========================================
-        function togglePlayer(id, nomeArquivo, btnPlay) {
-            const playerEl = document.getElementById(id);
-            const cardAtual = playerEl.closest('.card-livro');
-
-            // Se player já está aberto, apenas dá play/pause
-            if (playerEl.classList.contains('ativo')) {
-                togglePlay(id);
+    // BIBLIOTECA
+    async function carregarBiblioteca() {
+        const grid = document.getElementById('gridLib');
+        grid.innerHTML = '<p style="color:var(--cinza);text-align:center;padding:40px;grid-column:1/-1">Carregando...</p>';
+        try {
+            const r = await fetch(API + '/arquivos');
+            const d = await r.json();
+            grid.innerHTML = '';
+            if (!d.arquivos.length) {
+                grid.innerHTML = '<p style="color:var(--cinza);font-size:1.1rem;grid-column:1/-1;text-align:center;padding:60px 0">Nenhum áudio gerado ainda. Comece a criar! 🎧</p>';
                 return;
             }
-
-            // Fecha todos os outros players e remove expansão
-            document.querySelectorAll('.audio-player.ativo').forEach(p => {
-                const pid = p.id;
-                if (playersState[pid] && playersState[pid].audio) {
-                    playersState[pid].audio.pause();
-                }
-                p.classList.remove('ativo');
-                const btnAnterior = p.closest('.card-livro').querySelector('.btn-play-enorme');
-                if (btnAnterior) btnAnterior.textContent = '\u25b6 OUVIR AGORA';
-            });
-            document.querySelectorAll('.card-livro.player-aberto').forEach(c => c.classList.remove('player-aberto'));
-
-            // Cria o áudio
-            const urlAudio = `${API_URL}/download/${nomeArquivo}`;
-            const audio = new Audio(urlAudio);
-            playersState[id] = { audio, velocidade: 1 };
-
-            audio.addEventListener('loadedmetadata', () => {
-                document.getElementById(`${id}_total`).textContent = formatarTempo(audio.duration);
-            });
-
-            audio.addEventListener('timeupdate', () => atualizarProgresso(id));
-            audio.addEventListener('ended', () => {
-                document.getElementById(`${id}_playbtn`).textContent = '\u25b6 Ouvir';
-                btnPlay.textContent = '\u25b6 OUVIR AGORA';
-            });
-
-            audio.play().catch(err => console.error('Erro ao reproduzir:', err));
-
-            // Abre player e expande APENAS este card
-            playerEl.classList.add('ativo');
-            cardAtual.classList.add('player-aberto');
-            document.getElementById(`${id}_playbtn`).textContent = '\u23f8 Pausar';
-            btnPlay.textContent = '🎵 Reproduzindo...';
+            d.arquivos.forEach(a => grid.appendChild(criarCard(a)));
+        } catch(e) {
+            grid.innerHTML = '<p style="color:#f87171;text-align:center;grid-column:1/-1">Erro ao carregar: ' + e.message + '</p>';
         }
+    }
 
-        function togglePlay(id) {
-            const state = playersState[id];
-            if (!state) return;
-            const { audio } = state;
-            const btn = document.getElementById(`${id}_playbtn`);
+    function criarCard(arq) {
+        const id  = 'p_' + arq.nome.replace(/[^a-z0-9]/gi, '_');
+        const url = API + '/download/' + encodeURIComponent(arq.nome);
+        const c   = document.createElement('div');
+        c.className = 'card-livro';
+        c.innerHTML = `
+            <div class="card-head">
+                <div class="card-info">
+                    <div class="badge-pronto"><div class="dot-verde"></div> Pronto</div>
+                    <div class="livro-nome">${arq.nome}</div>
+                    <div class="livro-tam">Tamanho: ${arq.tamanho}</div>
+                </div>
+                <a href="${url}" download="${arq.nome}" class="btn-dl" title="Baixar áudio">⬇</a>
+            </div>
+            <button class="btn-ouvir" id="btn_${id}" onclick="abrirPlayer('${id}','${arq.nome}',this)">▶ OUVIR AGORA</button>
+            <div class="player" id="${id}">
+                <div class="player-top">
+                    <span class="player-nome">${arq.nome}</span>
+                    <span class="player-tempo"><span id="${id}_a">0:00</span> / <span id="${id}_t">0:00</span></span>
+                </div>
+                <div class="prog-wrap" id="${id}_pw" onclick="seekar('${id}',event)">
+                    <div class="prog-fill" id="${id}_pf"></div>
+                    <div class="prog-thumb" id="${id}_pt"></div>
+                </div>
+                <div class="ctrls">
+                    <button class="btn-c" onclick="pular('${id}',-15)">⏪ 15s</button>
+                    <button class="btn-c" onclick="pular('${id}',-5)">⏮ 5s</button>
+                    <button class="btn-c play" id="${id}_pb" onclick="pausar('${id}')">⏸ Pausar</button>
+                    <button class="btn-c" onclick="pular('${id}',5)">5s ⏭</button>
+                    <button class="btn-c" onclick="pular('${id}',15)">15s ⏩</button>
+                </div>
+                <div class="player-bottom">
+                    <div class="vel-grupo">
+                        <span class="vel-label">Velocidade:</span>
+                        ${[0.5,0.75,1,1.25,1.5,1.75,2].map(v=>`<button class="btn-vel${v===1?' on':''}" onclick="setVel('${id}',${v},this)">${v}x</button>`).join('')}
+                    </div>
+                    <div class="vol-grupo">
+                        <span class="vol-icon">🔊</span>
+                        <input type="range" class="vol" min="0" max="1" step="0.05" value="1" oninput="setVol('${id}',this.value)">
+                    </div>
+                </div>
+            </div>`;
+        return c;
+    }
 
-            if (audio.paused) {
-                audio.play();
-                btn.textContent = '⏸ Pausar';
-            } else {
-                audio.pause();
-                btn.textContent = '▶ Continuar';
-            }
-        }
+    // PLAYER
+    function abrirPlayer(id, nome, btnOuvir) {
+        const playerEl = document.getElementById(id);
 
-        function avancar(id, segundos) {
-            const state = playersState[id];
-            if (!state) return;
-            state.audio.currentTime = Math.min(state.audio.currentTime + segundos, state.audio.duration);
-        }
+        // Se já aberto, toggle pause
+        if (playerEl.classList.contains('vis')) { pausar(id); return; }
 
-        function retroceder(id, segundos) {
-            const state = playersState[id];
-            if (!state) return;
-            state.audio.currentTime = Math.max(state.audio.currentTime - segundos, 0);
-        }
-
-        function definirVelocidade(id, velocidade, btn) {
-            const state = playersState[id];
-            if (!state) return;
-            state.audio.playbackRate = velocidade;
-            state.velocidade = velocidade;
-
-            // Atualiza botões ativos
-            btn.closest('.velocidade-grupo').querySelectorAll('.btn-vel').forEach(b => b.classList.remove('ativo'));
-            btn.classList.add('ativo');
-        }
-
-        function ajustarVolume(id, valor) {
-            const state = playersState[id];
-            if (!state) return;
-            state.audio.volume = parseFloat(valor);
-        }
-
-        function seekAudio(id, event) {
-            const state = playersState[id];
-            if (!state) return;
-            const wrap = document.getElementById(`${id}_wrap`);
-            const rect = wrap.getBoundingClientRect();
-            const ratio = (event.clientX - rect.left) / rect.width;
-            state.audio.currentTime = ratio * state.audio.duration;
-        }
-
-        function atualizarProgresso(id) {
-            const state = playersState[id];
-            if (!state) return;
-            const { audio } = state;
-            if (!audio.duration) return;
-
-            const pct = (audio.currentTime / audio.duration) * 100;
-
-            const fill = document.getElementById(`${id}_fill`);
-            const thumb = document.getElementById(`${id}_thumb`);
-            const atual = document.getElementById(`${id}_atual`);
-
-            if (fill) fill.style.width = pct + '%';
-            if (thumb) thumb.style.left = pct + '%';
-            if (atual) atual.textContent = formatarTempo(audio.currentTime);
-        }
-
-        function formatarTempo(segundos) {
-            if (isNaN(segundos)) return '0:00';
-            const m = Math.floor(segundos / 60);
-            const s = Math.floor(segundos % 60).toString().padStart(2, '0');
-            return `${m}:${s}`;
-        }
-
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', () => {
-            // Registra listener de mudança de voz ANTES do fetch
-            const selectVoz = document.getElementById('selectVoz');
-            if (selectVoz) {
-                selectVoz.addEventListener('change', (e) => {
-                    vozSelecionada = e.target.value;
-                    console.log('Voz selecionada:', vozSelecionada);
-                });
-            }
-            carregarVozes();
+        // Fecha outros
+        document.querySelectorAll('.player.vis').forEach(p => {
+            const pid = p.id;
+            if (players[pid]) players[pid].pause();
+            p.classList.remove('vis');
+            p.closest('.card-livro').classList.remove('aberto');
+            const b = document.getElementById('btn_' + pid);
+            if (b) b.textContent = '▶ OUVIR AGORA';
         });
-    </script>
+
+        // Cria áudio — usa URL com CORS
+        const urlAudio = API + '/download/' + encodeURIComponent(nome);
+        const audio = new Audio();
+        audio.crossOrigin = 'anonymous';
+        audio.src = urlAudio;
+        players[id] = audio;
+
+        audio.addEventListener('loadedmetadata', () => {
+            document.getElementById(id + '_t').textContent = fmt(audio.duration);
+        });
+        audio.addEventListener('timeupdate', () => atualizarBarra(id));
+        audio.addEventListener('ended', () => {
+            const pb = document.getElementById(id + '_pb');
+            if (pb) pb.textContent = '▶ Ouvir';
+            if (btnOuvir) btnOuvir.textContent = '▶ OUVIR AGORA';
+        });
+        audio.addEventListener('error', (e) => {
+            console.error('Erro ao carregar áudio:', e);
+            alert('Não foi possível reproduzir o áudio. Tente novamente.');
+        });
+
+        audio.play().catch(err => {
+            console.error('Erro ao dar play:', err);
+            alert('Não foi possível iniciar a reprodução. O servidor pode estar dormindo, aguarde 30s e tente novamente.');
+        });
+
+        playerEl.classList.add('vis');
+        playerEl.closest('.card-livro').classList.add('aberto');
+        document.getElementById(id + '_pb').textContent = '⏸ Pausar';
+        btnOuvir.textContent = '🎵 Reproduzindo...';
+    }
+
+    function pausar(id) {
+        const audio = players[id];
+        if (!audio) return;
+        const pb = document.getElementById(id + '_pb');
+        const bo = document.getElementById('btn_' + id);
+        if (audio.paused) {
+            audio.play();
+            if (pb) pb.textContent = '⏸ Pausar';
+            if (bo) bo.textContent = '🎵 Reproduzindo...';
+        } else {
+            audio.pause();
+            if (pb) pb.textContent = '▶ Continuar';
+            if (bo) bo.textContent = '▶ OUVIR AGORA';
+        }
+    }
+
+    function pular(id, s) {
+        const a = players[id]; if (!a) return;
+        a.currentTime = Math.max(0, Math.min(a.currentTime + s, a.duration));
+    }
+
+    function setVel(id, v, btn) {
+        const a = players[id]; if (!a) return;
+        a.playbackRate = v;
+        btn.closest('.vel-grupo').querySelectorAll('.btn-vel').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+    }
+
+    function setVol(id, v) {
+        const a = players[id]; if (!a) return;
+        a.volume = parseFloat(v);
+    }
+
+    function seekar(id, ev) {
+        const a = players[id]; if (!a || !a.duration) return;
+        const pw = document.getElementById(id + '_pw');
+        const r  = pw.getBoundingClientRect();
+        a.currentTime = ((ev.clientX - r.left) / r.width) * a.duration;
+    }
+
+    function atualizarBarra(id) {
+        const a = players[id]; if (!a || !a.duration) return;
+        const pct = (a.currentTime / a.duration) * 100;
+        const pf  = document.getElementById(id + '_pf');
+        const pt  = document.getElementById(id + '_pt');
+        const at  = document.getElementById(id + '_a');
+        if (pf) pf.style.width  = pct + '%';
+        if (pt) pt.style.left   = pct + '%';
+        if (at) at.textContent  = fmt(a.currentTime);
+    }
+
+    function fmt(s) {
+        if (isNaN(s)) return '0:00';
+        return Math.floor(s/60) + ':' + String(Math.floor(s%60)).padStart(2,'0');
+    }
+
+    // INIT
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('selectVoz').addEventListener('change', e => {
+            vozAtual = e.target.value;
+        });
+        carregarVozes();
+    });
+</script>
 </body>
 </html>
